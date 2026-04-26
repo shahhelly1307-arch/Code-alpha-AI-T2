@@ -49,42 +49,41 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE VOXA UI (REFINED GLOW) ---
+# --- 4. THE VOXA UI (LEFT-SIDE GLOW REPAIR) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
-    /* Apply font to everything */
+    /* Global transparency for all Streamlit layers */
+    [data-testid="stAppViewContainer"] {
+        background-color: #000000 !important;
+    }
+
+    /* Target the Main Area and ensure the glow is at the VERY edges */
+    [data-testid="stAppViewMainArea"] {
+        background: 
+            radial-gradient(circle at 2% 50%, rgba(0, 229, 255, 0.4) 0%, transparent 40%),
+            radial-gradient(circle at 98% 50%, rgba(180, 82, 255, 0.3) 0%, transparent 40%) !important;
+        background-color: #000000 !important;
+    }
+
+    /* Prevent sidebar from blocking the left-side glow */
+    [data-testid="stSidebar"] {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(0, 229, 255, 0.2);
+    }
+
+    .main, .block-container {
+        background: transparent !important;
+    }
+
     * {
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* THE FIX: Apply background to the very base of the app */
-    .stApp {
-        background: #000000 !important;
-    }
-
-    /* Create the Side Glows using a fixed overlay so it doesn't disappear */
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: 
-            radial-gradient(circle at 2% 50%, rgba(0, 229, 255, 0.3) 0%, transparent 40%),
-            radial-gradient(circle at 98% 50%, rgba(180, 82, 255, 0.25) 0%, transparent 40%);
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    /* Ensure content stays above the glow */
-    .main .block-container {
-        z-index: 1;
-        position: relative;
-    }
-
-    /* HEADER STYLING */
     .voxa-header {
         font-size: clamp(2.5rem, 6vw, 6rem) !important; 
         font-weight: 700 !important;
@@ -104,7 +103,6 @@ st.markdown("""
         margin: 0 auto 30px auto;
     }
 
-    /* BUTTONS: Made them sharper neon blue */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
@@ -120,21 +118,19 @@ st.markdown("""
         color: #fff !important;
     }
 
-    /* INPUT FIELD */
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.7) !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
         border: 2px solid #00e5ff !important;
         color: #ffffff !important;
     }
 
-    /* CHAT CARD */
     .chat-card {
-        background: rgba(10, 10, 10, 0.6);
+        background: rgba(10, 10, 10, 0.7);
         border: 1px solid rgba(0, 229, 255, 0.3);
         border-left: 5px solid #00e5ff;
         padding: 15px;
         margin-bottom: 10px;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(5px);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -156,6 +152,14 @@ def get_response(user_input):
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
+# Sidebar Credentials
+with st.sidebar:
+    st.markdown("### SYSTEM SETTINGS")
+    st.write("**DEV:** Helly Shah")
+    if st.button("CLEAR HISTORY"):
+        st.session_state.history = []
+        st.rerun()
+
 if 'history' not in st.session_state:
     st.session_state.history = []
 
@@ -163,12 +167,10 @@ st.markdown("### 📡 ACTIVE FREQUENCIES")
 cols = st.columns(3)
 clicked_q = None
 
-# Grid of buttons
 for i, q in enumerate(df['question'].tolist()):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Text Input
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -180,11 +182,10 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# Display Chat
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <span style="color:#00e5ff">SIGNAL:</span> {item["q"]}<br>
-        <span style="color:#b452ff">NOVA:</span> {item["a"]}
+        <span style="color:#00e5ff; font-weight:bold;">SIGNAL:</span> {item["q"]}<br>
+        <span style="color:#b452ff; font-weight:bold;">NOVA:</span> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
