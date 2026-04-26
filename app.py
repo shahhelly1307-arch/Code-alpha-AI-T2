@@ -10,9 +10,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem import WordNetLemmatizer
 
-# --- 1. SESSION STATE FOR INTRO ---
+# --- 1. SESSION STATE FOR INTRO & VIEW MODE ---
 if 'intro_done' not in st.session_state:
     st.session_state.intro_done = False
+if 'view_mode' not in st.session_state:
+    st.session_state.view_mode = "PC MODE"
 
 # --- 2. INTRO PAGE (HTML/CSS) ---
 if not st.session_state.intro_done:
@@ -204,16 +206,38 @@ else:
 
     df = load_data()
 
-    # --- 6. THE NOVA CHATTERIX UI ---
-    st.markdown("""
+    # --- 6. THE NOVA CHATTERIX UI (With Responsive Mode Logic) ---
+    
+    # Mode Switcher Logic
+    container_width = "100%"
+    container_border = "none"
+    container_margin = "0"
+    
+    if st.session_state.view_mode == "ANDROID MODE":
+        container_width = "400px"
+        container_border = "12px solid #1a1a1a"
+        container_margin = "auto"
+
+    st.markdown(f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
         
-        html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
+        html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {{
             font-family: 'Silkscreen', cursive !important;
-        }
+        }}
 
-        .stApp {
+        /* MODE HANDLER */
+        .block-container {{
+            max-width: {container_width} !important;
+            border: {container_border} !important;
+            border-radius: 40px;
+            padding-top: 2rem !important;
+            margin: {container_margin} !important;
+            background: rgba(5, 5, 5, 0.8) !important;
+            box-shadow: 0 0 50px rgba(0, 229, 255, 0.1);
+        }}
+
+        .stApp {{
             background-color: #050505 !important; 
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.2) 0%, transparent 60%), 
@@ -222,11 +246,11 @@ else:
             background-attachment: fixed !important;
             background-size: cover;
             color: #ffffff;
-        }
+        }}
         
-        .voxa-header {
+        .voxa-header {{
             font-family: 'Silkscreen', cursive !important;
-            font-size: clamp(2.5rem, 6vw, 5rem) !important; 
+            font-size: clamp(1.8rem, 5vw, 4rem) !important; 
             font-weight: 700 !important;
             background: linear-gradient(to right, #00e5ff, #b452ff);
             -webkit-background-clip: text;
@@ -237,29 +261,29 @@ else:
             margin-top: 10px;
             margin-bottom: 0px;
             filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
-        }
+        }}
 
-        .orbital-line {
+        .orbital-line {{
             height: 3px;
             background: linear-gradient(90deg, transparent, #00e5ff, transparent);
             width: 80%;
             margin: 0 auto 40px auto;
             box-shadow: 0 0 15px #00e5ff;
-        }
+        }}
 
-        [data-testid="stSidebar"] {
+        [data-testid="stSidebar"] {{
             background-color: rgba(0, 0, 0, 0.8) !important;
             border-right: 1px solid rgba(0, 229, 255, 0.3);
-        }
+        }}
 
-        .sidebar-label {
+        .sidebar-label {{
             color: #00e5ff;
             font-size: 0.9rem;
             letter-spacing: 2px;
             font-weight: bold;
-        }
+        }}
 
-        div.stButton > button {
+        div.stButton > button {{
             background: rgba(255, 255, 255, 0.05) !important;
             color: #ffffff !important;
             border: 1px solid rgba(0, 229, 255, 0.5) !important;
@@ -267,22 +291,23 @@ else:
             font-size: 0.85rem !important;
             transition: 0.3s;
             padding: 10px 20px;
-        }
+            width: 100%;
+        }}
 
-        div.stButton > button:hover {
+        div.stButton > button:hover {{
             background: rgba(0, 229, 255, 0.2) !important;
             box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
             border: 1px solid #00e5ff !important;
-        }
+        }}
         
-        .stTextInput input {
+        .stTextInput input {{
             background-color: rgba(20, 20, 20, 0.7) !important;
             border: 1px solid rgba(0, 229, 255, 0.5) !important;
             color: #ffffff !important;
             border-radius: 10px !important;
-        }
+        }}
 
-        .chat-card {
+        .chat-card {{
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(0, 229, 255, 0.2);
             border-left: 5px solid #00e5ff;
@@ -290,15 +315,15 @@ else:
             margin-bottom: 15px;
             backdrop-filter: blur(10px);
             border-radius: 4px;
-        }
+        }}
 
-        .sidebar-robot-container {
+        .sidebar-robot-container {{
             animation: sideHover 4s ease-in-out infinite;
             display: flex;
             justify-content: center;
             margin-bottom: 10px;
-        }
-        @keyframes sideHover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        }}
+        @keyframes sideHover {{ 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }}
         </style>
         """, unsafe_allow_html=True)
 
@@ -349,6 +374,13 @@ else:
         """, unsafe_allow_html=True)
             
         st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
+        
+        # REAL MODE SWITCHER
+        mode = st.radio("SELECT DISPLAY FREQUENCY:", ["PC MODE", "ANDROID MODE"], index=0 if st.session_state.view_mode == "PC MODE" else 1)
+        if mode != st.session_state.view_mode:
+            st.session_state.view_mode = mode
+            st.rerun()
+
         if st.button("CLEAR CACHE"):
             st.session_state.history = []
             st.rerun()
@@ -363,18 +395,22 @@ else:
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
     if lottie_main:
-        col_rob, _ = st.columns([1, 4])
+        # Centering the robot for Android mode
+        _, col_rob, _ = st.columns([1, 2, 1])
         with col_rob: st_lottie(lottie_main, height=150, key="main_robot")
 
     if 'history' not in st.session_state:
         st.session_state.history = []
 
     st.markdown("### 📡 ACTIVE FREQUENCIES")
-    cols = st.columns(3)
+    
+    # Grid adjustment for mobile
+    num_cols = 1 if st.session_state.view_mode == "ANDROID MODE" else 3
+    cols = st.columns(num_cols)
     clicked_q = None
 
     for i, q in enumerate(df['question'].tolist()):
-        if cols[i % 3].button(q, key=f"q_{i}"):
+        if cols[i % num_cols].button(q, key=f"q_{i}"):
             clicked_q = q
 
     with st.form(key='chat_form', clear_on_submit=True):
