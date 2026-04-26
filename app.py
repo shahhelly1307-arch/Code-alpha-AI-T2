@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd
+import pd
 import json
 import nltk
 import requests
@@ -30,8 +30,7 @@ def load_lottieurl(url: str):
     except:
         return None
 
-# High-fidelity tech robot
-lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
+lottie_robot = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
 @st.cache_data
@@ -41,82 +40,83 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database missing. Please upload faqs.json"]})
+        return pd.DataFrame({"question": ["Who developed this?"], "answer": ["Developed by Helly Shah."]})
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (IMAGE 1 & 2 AESTHETIC) ---
+# --- 4. UI CONFIGURATION (VOXA ACCURACY) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* 1. Universal Pixel Font: applied globally to match VOXA feel */
-    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
-    
-    * {
-        font-family: 'DotGothic16', sans-serif !important;
-    }
+    /* 1. Import a Thicker, more uniform Pixel Font */
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-    /* 2. Background: Center-Glow Radial Gradient (Image 2) */
+    /* 2. Background: Deep Obsidian with Stronger Cyan Center Aura */
     .stApp {
-        background: radial-gradient(circle at center, #001f1f 0%, #050505 100%) !important;
+        background: radial-gradient(circle at center, #008080 0%, #001a1a 30%, #050505 100%) !important;
         color: #ffffff;
     }
     
-    /* 3. VOXA Pixel Header with Dynamic Sizing */
-    .voxa-header {
-        font-family: 'DotGothic16', sans-serif !important;
-        font-size: clamp(2.5rem, 10vw, 5rem) !important;
-        color: #00FFA3 !important;      /* The Exact VOXA Cyan Color */
+    /* 3. The Title: Forced Thick Pixel Font and Voxa Cyan Color */
+    .voxa-title {
+        font-family: 'Press Start 2P', cursive !important;
+        font-size: clamp(1.5rem, 6vw, 4rem) !important; 
+        color: #00FFA3 !important;   /* THE VOXA CYAN */
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: 12px;           /* Clean Spacing */
-        margin-top: 30px;
-        margin-bottom: 0px;
-        text-shadow: 0 0 30px rgba(0, 255, 163, 0.7); /* The glowing effect */
+        letter-spacing: 5px;
+        margin-top: 20px;
+        white-space: nowrap;
+        /* Heavier layered shadow for thickness and glow */
+        text-shadow: 
+            3px 3px 0px #004d4d,
+            0 0 15px #00FFA3, 
+            0 0 30px rgba(0, 255, 163, 0.5);
     }
 
-    /* 4. Orbital Glow Line (Image 2 aesthetic) */
+    /* 4. Orbital Line */
     .orbital-line {
-        height: 2px;
+        height: 3px;
         background: linear-gradient(90deg, transparent, #00FFA3, transparent);
-        width: 80%;
+        width: 75%;
         margin: 0 auto 30px auto;
-        box-shadow: 0 0 15px #00FFA3;
+        box-shadow: 0 0 20px #00FFA3;
     }
 
-    /* Sidebar Fixes */
-    [data-testid="stSidebar"] {
-        background-color: #050505 !important;
-        border-right: 1px solid rgba(0, 255, 163, 0.2);
-    }
-
-    /* Interactive Signal Buttons (Pixelated) */
+    /* Modern clean buttons for the rest of the UI */
     div.stButton > button {
-        background: rgba(0, 255, 163, 0.05) !important;
+        background: rgba(0, 255, 163, 0.1) !important;
         color: #00FFA3 !important;
         border: 2px solid #00FFA3 !important;
-        text-transform: uppercase;
-        border-radius: 0px !important; /* Blocky VOXA style */
-        transition: 0.3s ease;
+        font-family: 'Press Start 2P', cursive !important;
+        font-size: 0.7rem !important;
     }
     div.stButton > button:hover {
         background: #00FFA3 !important;
         color: #000 !important;
-        box-shadow: 0 0 20px #00FFA3;
+        box-shadow: 0 0 15px #00FFA3;
     }
 
-    /* Form Fields Styling */
     .stTextInput input {
-        background-color: rgba(255, 255, 255, 0.05) !important;
+        background-color: rgba(0, 0, 0, 0.6) !important;
         border: 1px solid #00FFA3 !important;
         color: #ffffff !important;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #050505 !important;
+        border-right: 1px solid rgba(0, 255, 163, 0.2);
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
+    # Helly Shah credit restoration
+    if "developer" in user_input.lower() or "who developed" in user_input.lower():
+        return "This project was developed by Helly Shah as a technical demonstration of NLP and professional UI integration."
+    
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -126,46 +126,42 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch. Data not recognized."
+    return "Signal weak. Data not recognized."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.title("SETTINGS")
-    if st.button("CLEAR HISTORY"):
+    st.markdown("<h3 style='color:#00FFA3;'>SYSTEM SETTINGS</h3>", unsafe_allow_html=True)
+    if st.button("RESET DATA"):
         st.session_state.history = []
         st.rerun()
     st.markdown("---")
-    # restore Helly Shah's profile: User Summary
-    st.write("**Developer:** Helly Shah")
-    st.write("**Project:** Nova Chatterix")
-    st.markdown('<p style="color:#00FFA3;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.write("**Operator:** Helly Shah")
+    st.write("**Core:** Nova Chatterix")
 
 # --- 7. MAIN INTERFACE ---
-# Pixelated Title (Image 1 style) and orbital line
-st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
+# UNIFORM THICK PIXEL HEADER
+st.markdown('<p class="voxa-title">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Hero Robot (Image 2 view)
-if lottie_main:
-    st_lottie(lottie_main, height=350, key="hero_robot")
+# Central Robot
+if lottie_robot:
+    st_lottie(lottie_robot, height=350, key="hero_bot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Question Signals list loop (Image 2 style)
-st.markdown("### 📡 ACTIVE SIGNALS")
-questions_list = df['question'].tolist()
+# Question Buttons
+st.markdown("### ⚡ ACTIVE SIGNALS")
+questions = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
-
-# Using enumerate and modulus to evenly distribute buttons across columns
-for i, q in enumerate(questions_list):
+for i, q in enumerate(questions[:6]):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Input Transmission
+# Input
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="Enter your signal...")
+    user_query = st.text_input("Enter Signal:", placeholder="Transmitting command...")
     submit = st.form_submit_button("SEND")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
@@ -175,7 +171,7 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# Neural History
+# History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div style="background:rgba(255,255,255,0.02); border-left:4px solid #00FFA3; padding:15px; margin-bottom:10px;">
