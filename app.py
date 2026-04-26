@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd  # FIXED: Corrected import
+import pandas as pd
 import json
 import nltk
 import requests
@@ -51,7 +51,6 @@ st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* Professional Pixel-Block Font */
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
@@ -64,30 +63,29 @@ st.markdown("""
         color: #ffffff;
     }
     
-    /* HEADER: Massive, Single Line, Blocky Glow */
+    /* HEADER: Reduced size to prevent overflow while keeping the blocky style */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
-        font-size: clamp(3rem, 7.5vw, 12rem) !important; 
+        font-size: clamp(2.5rem, 6vw, 8rem) !important; 
         font-weight: 700 !important;
         color: #00e5ff !important; 
         text-align: center;
         text-transform: uppercase;
         white-space: nowrap; 
-        letter-spacing: -4px;
+        letter-spacing: -3px;
         margin-top: 10px;
         margin-bottom: 0px;
         /* STACKED SHADOWS for blocky thickness */
         text-shadow: 
             2px 2px 0px #004d4d, 
             4px 4px 0px #004d4d, 
-            6px 6px 0px #004d4d,
-            0 0 40px rgba(0, 229, 255, 0.7);
+            0 0 30px rgba(0, 229, 255, 0.6);
     }
 
     .orbital-line {
         height: 4px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-        width: 85%;
+        width: 80%;
         margin: 0 auto 40px auto;
         box-shadow: 0 0 20px #00e5ff;
     }
@@ -100,7 +98,7 @@ st.markdown("""
 
     .sidebar-label {
         color: #00e5ff;
-        font-size: 1rem;
+        font-size: 0.9rem;
         letter-spacing: 2px;
         font-weight: bold;
     }
@@ -110,6 +108,7 @@ st.markdown("""
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
+        font-size: 0.8rem !important;
     }
     
     .stTextInput input {
@@ -161,14 +160,13 @@ with st.sidebar:
     st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# FIXED: changed unsafe_allow_header to unsafe_allow_html
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
     col_rob, _ = st.columns([1, 4])
     with col_rob:
-        st_lottie(lottie_main, height=180, key="main_robot")
+        st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
