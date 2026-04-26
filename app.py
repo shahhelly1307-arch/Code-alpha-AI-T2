@@ -58,39 +58,42 @@ st.markdown("""
         color: #ffffff;
     }
     
-    /* THE BIG FONT: Image 1 Voxa Style */
+    /* THE FONT: Matches VOXA Thick Boldness on Single Line */
     .voxa-title {
         font-family: 'DotGothic16', sans-serif !important;
-        font-size: 100px !important; /* Extremely Big Font */
-        color: #00FFA3 !important;   /* Same Cyan Color as Voxa */
+        font-size: clamp(2rem, 8vw, 5.5rem) !important; /* Large but fits in one line */
+        font-weight: 900 !important;   /* Makes the font thick like Voxa */
+        color: #00FFA3 !important;      /* Exact Cyan Color */
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: 25px;       /* Wide Spacing like Voxa */
-        margin-top: 10px;
-        margin-bottom: 0px;
-        line-height: 1.2;
-        text-shadow: 0 0 35px rgba(0, 255, 163, 0.9); /* Strong Glow */
+        letter-spacing: 12px;           /* Clean Spacing */
+        margin-top: 20px;
+        margin-bottom: 5px;
+        white-space: nowrap;            /* Forces single line */
+        text-shadow: 0 0 20px rgba(0, 255, 163, 0.8), 0 0 40px rgba(0, 255, 163, 0.4); 
     }
 
     /* Orbital Line: Image 2 Glow */
     .orbital-line {
-        height: 3px;
+        height: 2px;
         background: linear-gradient(90deg, transparent, #00FFA3, transparent);
-        width: 70%;
-        margin: 0 auto 30px auto;
-        box-shadow: 0 0 20px #00FFA3;
+        width: 85%;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 0 15px #00FFA3;
     }
 
-    /* Clean UI for the rest */
+    /* Buttons: Clean UI */
     div.stButton > button {
-        background: rgba(0, 255, 163, 0.1) !important;
+        background: rgba(0, 255, 163, 0.05) !important;
         color: #00FFA3 !important;
         border: 1px solid #00FFA3 !important;
-        border-radius: 5px !important;
+        border-radius: 4px !important;
+        font-weight: bold;
     }
     div.stButton > button:hover {
         background: #00FFA3 !important;
         color: #000 !important;
+        box-shadow: 0 0 15px #00FFA3;
     }
 
     [data-testid="stSidebar"] {
@@ -102,6 +105,7 @@ st.markdown("""
 
 # --- 5. LOGIC ENGINE (Restoring Helly Shah Credits) ---
 def get_response(user_input):
+    # Developer name check
     if "developer" in user_input.lower() or "who developed" in user_input.lower():
         return "This project was developed by Helly Shah as a technical demonstration of NLP and professional UI integration."
     
@@ -114,7 +118,7 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Signal weak. Query not found."
+    return "Neural signal weak. Data not recognized."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
@@ -128,13 +132,13 @@ with st.sidebar:
     st.markdown('<p style="color:#00FFA3;">● STATUS: ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# THE BIG VOXA-STYLE HEADER
-st.markdown('<p class="voxa-title">NOVA<br>CHATTERIX</p>', unsafe_allow_html=True)
+# HEADER: One line, thick, cyan glow
+st.markdown('<p class="voxa-title">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Central Robot Hero
+# Robot Hero
 if lottie_robot:
-    st_lottie(lottie_robot, height=300, key="hero_bot")
+    st_lottie(lottie_robot, height=320, key="hero_bot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
