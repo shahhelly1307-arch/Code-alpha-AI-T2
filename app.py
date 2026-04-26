@@ -42,7 +42,6 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        # Fallback data - HELLY SHAH as the developer
         return pd.DataFrame({
             "question": ["Who developed this interface?", "System Status"], 
             "answer": ["This interface was developed by Helly Shah.", "Database signal active."]
@@ -50,7 +49,7 @@ def load_data():
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (SINGLE LINE VOXA STYLE) ---
+# --- 4. UI CONFIGURATION ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
@@ -66,28 +65,28 @@ st.markdown("""
         color: #ffffff;
     }
     
-    /* HEADER: Single Line, Extra Large, VOXA Cyan-Blue */
+    /* SINGLE LINE MASSIVE HEADER */
     .voxa-header {
         font-family: 'VT323', monospace !important;
-        font-size: clamp(4rem, 10vw, 9rem) !important; 
+        font-size: clamp(3.5rem, 9vw, 10rem) !important; 
         font-weight: 900 !important;
-        color: #00e5ff !important; /* Brighter VOXA Cyan */
+        color: #00e5ff !important; 
         text-align: center;
         text-transform: uppercase;
-        white-space: nowrap; /* Forces text to stay on one line */
+        white-space: nowrap; 
         letter-spacing: -2px;
-        margin-top: 20px;
-        margin-bottom: 10px;
+        margin-top: 10px;
+        margin-bottom: 5px;
         text-shadow: 
-            4px 4px 0px #004d4d,
-            0 0 40px rgba(0, 229, 255, 0.5);
+            5px 5px 0px #004d4d,
+            0 0 45px rgba(0, 229, 255, 0.6);
     }
 
     .orbital-line {
         height: 3px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
         width: 85%;
-        margin: 0 auto 40px auto;
+        margin: 0 auto 30px auto;
         box-shadow: 0 0 15px #00e5ff;
     }
 
@@ -95,7 +94,6 @@ st.markdown("""
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
-        border-radius: 0px !important;
     }
     
     div.stButton > button:hover {
@@ -122,8 +120,8 @@ st.markdown("""
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
-    # Direct override for developer question
-    if "developed" in user_input.lower() or "creator" in user_input.lower():
+    # Direct credit to Helly Shah
+    if "developed" in user_input.lower() or "creator" in user_input.lower() or "who made this" in user_input.lower():
         return "This interface was developed by Helly Shah."
         
     processed_input = preprocess_text(user_input)
@@ -143,13 +141,12 @@ with st.sidebar:
     if st.button("CLEAR HISTORY"):
         st.session_state.history = []
         st.rerun()
-    # Explicitly set to Helly Shah
     st.write("**Developer:** Helly Shah")
     st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# Title is now restricted to a single line
-st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_header=True)
+# FIXED: changed unsafe_allow_header to unsafe_allow_html
+st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
