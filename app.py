@@ -51,7 +51,7 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except Exception:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json file."]})
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json file."]})\
 
 df = load_data()
 
@@ -66,15 +66,15 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: MIXED TOP (LIGHT BLUE) TO BOTTOM (PURPLE) GRADIENT */
+    /* BACKGROUND: Light blue and Purple occupying both sides and blending in center */
     .stApp {
-        background-color: #000000 !important;
+        background-color: #050505 !important; 
         background-image: 
-            linear-gradient(180deg, #00e5ff 0%, #b452ff 100%) !important;
+            radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.2) 0%, transparent 60%), 
+            radial-gradient(circle at 100% 100%, rgba(180, 82, 255, 0.2) 0%, transparent 60%),
+            linear-gradient(135deg, #001214 0%, #11001c 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
-        /* We use a blend mode to keep it looking deep and professional like the image */
-        background-blend-mode: overlay; 
         color: #ffffff;
     }
     
@@ -105,8 +105,8 @@ st.markdown("""
 
     /* SIDEBAR styling */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.9) !important;
-        border-right: 2px solid #00e5ff;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        border-right: 1px solid rgba(0, 229, 255, 0.3);
     }
 
     .sidebar-label {
@@ -118,33 +118,36 @@ st.markdown("""
 
     /* Buttons and Inputs */
     div.stButton > button {
-        background: rgba(0, 229, 255, 0.05) !important;
-        color: #00e5ff !important;
-        border: 2px solid #00e5ff !important;
-        border-radius: 0px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(0, 229, 255, 0.5) !important;
+        border-radius: 50px !important; /* Pill shape like the 'Try Voxa' button */
         font-size: 0.85rem !important;
         transition: 0.3s;
+        padding: 10px 20px;
     }
 
     div.stButton > button:hover {
         background: rgba(0, 229, 255, 0.2) !important;
-        box-shadow: 0 0 20px #00e5ff;
-        color: #fff !important;
+        box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+        border: 1px solid #00e5ff !important;
     }
     
     .stTextInput input {
-        background-color: rgba(20, 20, 20, 0.9) !important;
-        border: 2px solid #00e5ff !important;
+        background-color: rgba(20, 20, 20, 0.7) !important;
+        border: 1px solid rgba(0, 229, 255, 0.5) !important;
         color: #ffffff !important;
+        border-radius: 10px !important;
     }
 
     .chat-card {
-        background: rgba(0, 229, 255, 0.03);
-        border: 1px solid #00e5ff;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(0, 229, 255, 0.2);
         border-left: 5px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
         backdrop-filter: blur(10px);
+        border-radius: 4px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -180,7 +183,7 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#b452ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
@@ -221,4 +224,3 @@ for item in reversed(st.session_state.history):
         <b style="color:#b452ff">NOVO:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
-    
