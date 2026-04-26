@@ -189,11 +189,13 @@ else:
 
     df = load_data()
 
-    # --- 6. THE NOVA CHATTERIX UI ---
-    # Determine sizing based on mode
+    # --- 6. THE NOVA CHATTERIX UI (DYNAMIC STYLING) ---
     c_width = "400px" if st.session_state.view_mode == "ANDROID MODE" else "100%"
     c_border = "12px solid #1a1a1a" if st.session_state.view_mode == "ANDROID MODE" else "none"
     c_margin = "auto" if st.session_state.view_mode == "ANDROID MODE" else "0"
+    
+    # Adjusting font size to force one line in Android mode
+    header_font_size = "1.8rem" if st.session_state.view_mode == "ANDROID MODE" else "clamp(2.5rem, 6vw, 5rem)"
 
     st.markdown(f"""
         <style>
@@ -225,7 +227,9 @@ else:
         }}
         
         .voxa-header {{
-            font-size: clamp(1.8rem, 5vw, 4rem) !important; 
+            font-family: 'Silkscreen', cursive !important;
+            font-size: {header_font_size} !important; 
+            font-weight: 700 !important;
             background: linear-gradient(to right, #00e5ff, #b452ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -233,6 +237,8 @@ else:
             text-transform: uppercase;
             letter-spacing: -1px;
             margin-top: 10px;
+            margin-bottom: 5px;
+            white-space: nowrap; /* Forces text onto one line */
             filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
         }}
 
@@ -346,6 +352,7 @@ else:
         st.write("**ENGINE:** NOVA-V2")
 
     # --- 9. MAIN INTERFACE ---
+    # Header is now guaranteed to be on one line with correct font and color
     st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
