@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem import WordNetLemmatizer
 
-# --- 1. NLP SETUP ---
+# --- 1. NLP SETUP (Standardizing Indentation to avoid U+00A0 errors) ---
 @st.cache_resource
 def setup_nlp():
     try:
@@ -52,31 +52,36 @@ def load_data():
 
 df = load_data()
 
-# --- 3. UI CONFIG & ORIGINAL STYLING ---
+# --- 3. UI CONFIG & YOUR PREVIOUS STYLING ---
 st.set_page_config(page_title="Novo Chatterix", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
+    /* UNIVERSAL FONT LOCK */
+    * {
+        font-family: 'Silkscreen', cursive !important;
+    }
+
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* THE BACKGROUND YOU WANTED: Symmetrical Sides */
+    /* PREVIOUS BACKGROUND: Symmetrical Sides (Blue - Purple - Blue) */
     .stApp {
         background-color: #000000 !important;
         background-image: 
             linear-gradient(90deg, 
-                rgba(0, 229, 255, 0.4) 0%, 
-                rgba(180, 82, 255, 0.4) 50%, 
-                rgba(0, 229, 255, 0.4) 100%) !important;
+                rgba(0, 229, 255, 0.45) 0%, 
+                rgba(180, 82, 255, 0.45) 50%, 
+                rgba(0, 229, 255, 0.45) 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
         color: #ffffff;
     }
     
-    /* Splash Screen Style */
+    /* FIRST PAGE: Splash Text */
     .splash-text {
         font-size: 8rem;
         text-align: center;
@@ -87,7 +92,7 @@ st.markdown("""
         filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.8));
     }
 
-    /* YOUR ORIGINAL LARGE HEADER */
+    /* SECOND PAGE: Your Original Large Header */
     .voxa-header {
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
         font-weight: 700 !important;
@@ -110,34 +115,42 @@ st.markdown("""
     }
 
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.8) !important;
+        background-color: rgba(0, 0, 0, 0.9) !important;
         border-right: 2px solid #00e5ff;
     }
 
+    /* Your Original Chat Card Style */
     .chat-card {
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 229, 255, 0.03);
         border: 1px solid #00e5ff;
-        border-left: 5px solid #b452ff;
+        border-left: 5px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
         backdrop-filter: blur(10px);
     }
 
     div.stButton > button {
-        background: rgba(0, 0, 0, 0.5) !important;
+        background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
+        transition: 0.3s;
+    }
+    
+    .stTextInput input {
+        background-color: rgba(20, 20, 20, 0.9) !important;
+        border: 2px solid #00e5ff !important;
+        color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. TIMED SPLASH SCREEN ---
+# --- 4. FIRST PAGE: TIMED SPLASH SCREEN (2 SECONDS) ---
 if 'intro_done' not in st.session_state:
     splash = st.empty()
     with splash.container():
         st.markdown('<p class="splash-text">HELLY</p>', unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align:center; color:#00e5ff;'>LOAD_SYSTEM...</h3>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center; color:#00e5ff;'>SIGNAL_INITIALIZING...</h2>", unsafe_allow_html=True)
         time.sleep(2)
     splash.empty()
     st.session_state.intro_done = True
@@ -167,7 +180,7 @@ with st.sidebar:
     st.write("**DEVELOPER:** Helly")
     st.write("**ENGINE:** NPCL V2.0")
 
-# --- 7. MAIN INTERFACE (YOUR PREVIOUS DESIGN) ---
+# --- 7. SECOND PAGE: CHATBOT INTERFACE (YOUR ORIGINAL DESIGN) ---
 st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
