@@ -51,14 +51,13 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except Exception:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check for a 'faqs.json' file in the same directory."]})
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json file."]})
 
 df = load_data()
 
-# --- 4. THE NOVO CHATTERIX UI & BACKGROUND FIX ---
+# --- 4. THE NOVO CHATTERIX UI ---
 st.set_page_config(page_title="Novo Chatterix", layout="wide")
 
-# CSS TO ACHIEVE THE 'MIXED GRADIENT' FROM THE IMAGE
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
@@ -67,18 +66,17 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* THE RECREATED BACKGROUND: Pure Black with blended radial glows */
+    /* BACKGROUND: PERFECT TOP (LIGHT BLUE) TO BOTTOM (PURPLE) MIX FROM IMAGE */
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            radial-gradient(circle at 10% 40%, rgba(0, 229, 255, 0.4) 0%, transparent 40%),  /* Upper-left Light Blue Glow */
-            radial-gradient(circle at 90% 60%, rgba(180, 82, 255, 0.4) 0%, transparent 40%) !important; /* Lower-right Purple Glow */
+            linear-gradient(180deg, rgba(0, 229, 255, 0.45) 0%, rgba(180, 82, 255, 0.45) 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
         color: #ffffff;
     }
     
-    /* HEADER: Cyan-Purple Text Gradient */
+    /* HEADER: Cyan-Purple Text Gradient Recreating "VOXA" style */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
@@ -149,11 +147,11 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. LOGIC ENGINE ---
+# --- 5. LOGIC ENGINE (Restored to Helly) ---
 def get_response(user_input):
     dev_query = user_input.lower()
-    if any(x in dev_query for x in ["developed", "creator", "who made", "built by"]):
-        return "This system, 'Novo Chatterix', was developed as a full technical demonstration of advanced Natural Language Processing and professional UI integration."
+    if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
+        return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
         
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
@@ -164,7 +162,7 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neutral Signal Mismatch. Required data not found in current semantic frequency."
+    return "Neural Signal Mismatch. Data not found in current frequency."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
@@ -175,30 +173,25 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
-    st.write("**DEVELOPER:** Helly Shah")
-    st.write("**NLP ENGINE:** TF-IDF Cosine Similarity v2.1")
-    st.write("**UI ENGINE:** NPCL V2.0")
+    st.write("**DEVELOPER:** Helly")
+    st.write("**ENGINE:** NPCL V2.0")
     
     st.markdown("---")
     st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
     st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# Gradient Header Recreating "VOXA" style for "NOVO CHATTERIX"
 st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Central Lottie Robot/Element
 if lottie_main:
     col_rob, _ = st.columns([1, 4])
     with col_rob:
         st_lottie(lottie_main, height=150, key="main_robot")
 
-# Session State History Initialize
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Dynamic FAQ Buttons Section
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
@@ -208,28 +201,21 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Chat Input Form Section
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="AWAITING NEURAL SIGNAL...")
+    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
-# Logic Handling Clicked Buttons vs. Typed Input
 final_query = clicked_q if clicked_q else (user_query if submit else None)
 
 if final_query:
-    # Process and get response
-    with st.spinner("Processing Semantic Vector..."):
-        ans = get_response(final_query)
-    # Append to history
+    ans = get_response(final_query)
     st.session_state.history.append({"q": final_query, "a": ans})
-    # Rerun to clear input and update history view
     st.rerun()
 
-# History Display Section (Reversed)
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#00e5ff">INCOMING SIGNAL:</b> {item["q"]}<br><br>
-        <b style="color:#b452ff">NOVO RESPONSE:</b> {item["a"]}
+        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
+        <b style="color:#b452ff">NOVO:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
