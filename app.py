@@ -70,9 +70,11 @@ st.markdown("""
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            linear-gradient(180deg, rgba(0, 229, 255, 0.45) 0%, rgba(180, 82, 255, 0.45) 100%) !important;
+            linear-gradient(180deg, #00e5ff 0%, #b452ff 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
+        /* We use a blend mode to keep it looking deep and professional like the image */
+        background-blend-mode: overlay; 
         color: #ffffff;
     }
     
