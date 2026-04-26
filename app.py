@@ -42,7 +42,7 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json file."]})
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active."] spell})
 
 df = load_data()
 
@@ -57,16 +57,15 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: MIXED NEON GRADIENT WAVE EFFECT */
+    /* BACKGROUND: PERFECT TOP-TO-BOTTOM LIGHT BLUE-TO-PURPLE MIX */
     .stApp {
-        background-color: #000000 !important;
+        background-color: #000000 !important; /* Base black for depth */
         background-image: 
-            radial-gradient(at 0% 100%, rgba(0, 229, 255, 0.35) 0px, transparent 50%),
-            radial-gradient(at 100% 0%, rgba(180, 82, 255, 0.35) 0px, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(0, 229, 255, 0.2) 0px, transparent 50%),
-            radial-gradient(at 0% 0%, rgba(180, 82, 255, 0.2) 0px, transparent 50%),
-            linear-gradient(125deg, rgba(0,0,0,1) 0%, rgba(15,15,25,1) 50%, rgba(0,0,0,1) 100%) !important;
+            linear-gradient(180deg, rgba(0, 229, 255, 0.45) 0%, rgba(180, 82, 255, 0.45) 100%),
+            radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%) !important;
         background-attachment: fixed !important;
+        background-size: cover;
+        background-blend-mode: saturation; /* Swirls and mixes the colors */
         color: #ffffff;
     }
     
