@@ -154,11 +154,18 @@ else:
     # --- 3. NLP SETUP ---
     @st.cache_resource
     def setup_nlp():
-        for package in ['punkt', 'wordnet', 'punkt_tab']:
-            try:
-                nltk.data.find(f'tokenizers/{package}' if 'punkt' in package else f'corpora/{package}')
-            except LookupError:
-                nltk.download(package)
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt')
+        try:
+            nltk.data.find('corpora/wordnet')
+        except LookupError:
+            nltk.download('wordnet')
+        try:
+            nltk.data.find('tokenizers/punkt_tab')
+        except LookupError:
+            nltk.download('punkt_tab')
 
     setup_nlp()
     lemmatizer = WordNetLemmatizer()
@@ -171,8 +178,10 @@ else:
     def load_lottieurl(url: str):
         try:
             r = requests.get(url, timeout=10)
-            return r.json() if r.status_code == 200 else None
-        except:
+            if r.status_code != 200:
+                return None
+            return r.json()
+        except Exception:
             return None
 
     lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
@@ -182,8 +191,9 @@ else:
     def load_data():
         try:
             with open('faqs.json', 'r') as f:
-                return pd.DataFrame(json.load(f))
-        except:
+                data = json.load(f)
+            return pd.DataFrame(data)
+        except Exception:
             return pd.DataFrame({
                 "question": ["System Status", "Identity Check"], 
                 "answer": ["Database signal active. Please check faqs.json.", "I am NOVA, your neural interface."]
@@ -191,7 +201,9 @@ else:
 
     df = load_data()
 
-    # --- 6. UI CONFIG ---
+    # --- 6. THE NOVA CHATTERIX UI ---
+    st.set_page_config(page_title="Nova Chatterix", layout="wide")
+
     st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
@@ -199,6 +211,7 @@ else:
         html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
             font-family: 'Silkscreen', cursive !important;
         }
+
         .stApp {
             background-color: #050505 !important; 
             background-image: 
@@ -209,18 +222,23 @@ else:
             background-size: cover;
             color: #ffffff;
         }
+        
         .voxa-header {
+            font-family: 'Silkscreen', cursive !important;
             font-size: clamp(2.5rem, 6vw, 8rem) !important; 
-            font-weight: 700;
+            font-weight: 700 !important;
             background: linear-gradient(to right, #00e5ff, #b452ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
             text-transform: uppercase;
+            white-space: nowrap; 
             letter-spacing: -3px;
-            margin: 10px 0 0 0;
+            margin-top: 10px;
+            margin-bottom: 0px;
             filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
         }
+
         .orbital-line {
             height: 3px;
             background: linear-gradient(90deg, transparent, #00e5ff, transparent);
@@ -228,6 +246,42 @@ else:
             margin: 0 auto 40px auto;
             box-shadow: 0 0 15px #00e5ff;
         }
+
+        [data-testid="stSidebar"] {
+            background-color: rgba(0, 0, 0, 0.8) !important;
+            border-right: 1px solid rgba(0, 229, 255, 0.3);
+        }
+
+        .sidebar-label {
+            color: #00e5ff;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        div.stButton > button {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(0, 229, 255, 0.5) !important;
+            border-radius: 50px !important;
+            font-size: 0.85rem !important;
+            transition: 0.3s;
+            padding: 10px 20px;
+        }
+
+        div.stButton > button:hover {
+            background: rgba(0, 229, 255, 0.2) !important;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+            border: 1px solid #00e5ff !important;
+        }
+        
+        .stTextInput input {
+            background-color: rgba(20, 20, 20, 0.7) !important;
+            border: 1px solid rgba(0, 229, 255, 0.5) !important;
+            color: #ffffff !important;
+            border-radius: 10px !important;
+        }
+
         .chat-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(0, 229, 255, 0.2);
@@ -237,6 +291,29 @@ else:
             backdrop-filter: blur(10px);
             border-radius: 4px;
         }
+
+        /* Robot Animations for Sidebar */
+        @keyframes sideHover {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes sideBlink {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+        @keyframes sideEye {
+            0%, 10%, 100% { transform: translate(0, 0); }
+            20%, 40% { transform: translate(2px, -1px); }
+            50%, 70% { transform: translate(-2px, 1px); }
+        }
+        .sidebar-robot-container {
+            animation: sideHover 4s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .side-eye-lid { transform-origin: center; animation: sideBlink 4s ease-in-out infinite; }
+        .side-eye-pupil { animation: sideEye 6s ease-in-out infinite; }
         </style>
         """, unsafe_allow_html=True)
 
@@ -246,31 +323,94 @@ else:
         if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
             return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
         
+        if "nova" in dev_query and "who are you" in dev_query:
+            return "I am NOVA, a high-frequency neural interface designed for rapid data retrieval."
+
         processed_input = preprocess_text(user_input)
         corpus = df['question'].apply(preprocess_text).tolist()
         
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(corpus)
+        
         user_vec = vectorizer.transform([processed_input])
         similarity_scores = cosine_similarity(user_vec, tfidf_matrix)
         
         idx = similarity_scores.argmax()
-        return df.iloc[idx]['answer'] if similarity_scores[0][idx] > 0.2 else "Neural Signal Mismatch. Data not found."
+        if similarity_scores[0][idx] > 0.2:
+            return df.iloc[idx]['answer']
+        return "Neural Signal Mismatch. Data not found in current frequency."
 
-    # --- 8. MAIN INTERFACE ---
+    # --- 8. SIDEBAR ---
+    with st.sidebar:
+        # EXACT SVG ROBOT FROM HTML
+        st.markdown("""
+        <div class="sidebar-robot-container">
+            <svg width="150" height="150" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="bodyGradSide" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#b85cff" />
+                        <stop offset="60%" stop-color="#7a7aff" />
+                        <stop offset="100%" stop-color="#5ce1ff" />
+                    </linearGradient>
+                </defs>
+                <circle cx="100" cy="35" r="4" fill="#b85cff" />
+                <rect x="98" y="38" width="4" height="12" fill="#b85cff" />
+                <path d="M55 85 C 55 40, 145 40, 145 85 C 145 130, 125 170, 100 170 C 75 170, 55 130, 55 85" 
+                      fill="url(#bodyGradSide)" stroke="white" stroke-width="0.5" />
+                <rect x="65" y="75" width="70" height="42" rx="21" fill="#0c121d" stroke="#5ce1ff" stroke-width="1" />
+                <g class="side-eye-lid">
+                    <circle cx="82" cy="95" r="8" fill="white" />
+                    <circle class="side-eye-pupil" cx="82" cy="95" r="3.5" fill="#0c121d" />
+                    <circle cx="118" cy="95" r="8" fill="white" />
+                    <circle class="side-eye-pupil" cx="118" cy="95" r="3.5" fill="#0c121d" />
+                </g>
+                <path d="M92 122 Q100 128 108 122" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
+            </svg>
+        </div>
+        """, unsafe_allow_html=True)
+            
+        st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
+        if st.button("CLEAR CACHE"):
+            st.session_state.history = []
+            st.rerun()
+        
+        st.markdown("---")
+        st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
+        st.write("**DEVELOPER:** Helly")
+        st.write("**ENGINE:** NOVA-V2")
+        
+        st.markdown("---")
+
+    # --- 9. MAIN INTERFACE ---
     st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
+    if lottie_main:
+        col_rob, _ = st.columns([1, 4])
+        with col_rob:
+            st_lottie(lottie_main, height=150, key="main_robot")
+
     if 'history' not in st.session_state:
         st.session_state.history = []
+
+    st.markdown("### 📡 ACTIVE FREQUENCIES")
+    questions_list = df['question'].tolist()
+    cols = st.columns(3)
+    clicked_q = None
+
+    for i, q in enumerate(questions_list):
+        if cols[i % 3].button(q, key=f"q_{i}"):
+            clicked_q = q
 
     with st.form(key='chat_form', clear_on_submit=True):
         user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
         submit = st.form_submit_button("TRANSMIT")
 
-    if submit and user_query:
-        ans = get_response(user_query)
-        st.session_state.history.insert(0, {"q": user_query, "a": ans})
+    final_query = clicked_q if clicked_q else (user_query if submit else None)
+
+    if final_query:
+        ans = get_response(final_query)
+        st.session_state.history.insert(0, {"q": final_query, "a": ans})
         st.rerun()
 
     for item in st.session_state.history:
