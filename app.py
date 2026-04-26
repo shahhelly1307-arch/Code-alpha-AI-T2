@@ -32,8 +32,8 @@ def load_lottieurl(url: str):
     except Exception:
         return None
 
-# Loading the animated robot for the left-side placement
-lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
+# The robot animation for the left side
+lottie_robot = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
 @st.cache_data
@@ -50,11 +50,12 @@ df = load_data()
 # --- 4. THE VOXA REPLICA UI ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
-# Applying the VOXA colors: Obsidian base with Blue/Cyan highlights
+# Theme Colors based on your VOXA image
 VOXA_CYAN = "#00FFA3" 
 VOXA_OBSIDIAN = "#000a12"
 VOXA_BLUE_GLOW = "#001f2d"
 
+# Use double curly braces {{ }} for CSS to avoid f-string SyntaxErrors
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
@@ -64,13 +65,10 @@ st.markdown(f"""
         color: #ffffff;
     }}
 
-    /* Matches the background from your VOXA image */
     .stApp {{
         background: radial-gradient(circle at center, {VOXA_BLUE_GLOW} 0%, {VOXA_OBSIDIAN} 100%) !important;
-        color: #ffffff;
     }}
     
-    /* Pixelated header inspired by the image logo */
     .voxa-header {{
         font-family: 'DotGothic16', sans-serif !important;
         font-size: clamp(3rem, 10vw, 8rem) !important; 
@@ -78,32 +76,25 @@ st.markdown(f"""
         color: {VOXA_CYAN} !important; 
         text-align: center;
         text-transform: uppercase;
-        margin-top: 50px;
-        margin-bottom: 20px;
+        margin-top: 20px;
         text-shadow: 0 0 30px rgba(0, 255, 163, 0.4);
-        letter-spacing: -2px;
         white-space: nowrap;
     }}
 
     .orbital-line {{
         height: 3px;
         background: linear-gradient(90deg, transparent, {VOXA_CYAN}, transparent);
-        width: 70%;
-        margin: 0 auto 50px auto;
+        width: 80%;
+        margin: 0 auto 40px auto;
         box-shadow: 0 0 15px {VOXA_CYAN};
     }}
 
-    /* Sidebar and button styling */
-    [data-testid="stSidebar"] {{
-        background-color: {VOXA_OBSIDIAN} !important;
-        border-right: 1px solid rgba(0, 255, 163, 0.2);
-    }}
-
     div.stButton > button {{
-        background: rgba(0, 255, 163, 0.05) !important;
+        background: rgba(0, 255, 163, 0.1) !important;
         color: {VOXA_CYAN} !important;
         border: 2px solid {VOXA_CYAN} !important;
         border-radius: 4px !important;
+        width: 100%;
     }}
 
     .stTextInput input {{
@@ -113,10 +104,11 @@ st.markdown(f"""
     }}
 
     .chat-card {{
-        background: rgba(0, 255, 163, 0.03);
-        border-left: 4px solid {VOXA_CYAN};
-        padding: 20px;
-        margin-bottom: 15px;
+        background: rgba(0, 255, 163, 0.05);
+        border: 1px solid {VOXA_CYAN};
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -132,57 +124,58 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Signal lost. Data not found in current sector."
+    return "No signal found in this sector."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.title("INTERFACE SETTINGS")
+    st.title("SETTINGS")
     if st.button("CLEAR CACHE"):
         st.session_state.history = []
         st.rerun()
-    st.write("**DEVELOPER:** Helly Shah")
-    st.markdown(f'<p style="color:{VOXA_CYAN};">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.write("**DEV:** Helly Shah")
+    st.markdown(f'<p style="color:{VOXA_CYAN};">● ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# PLACING THE ANIMATED ROBOT ON THE LEFT
-if lottie_main:
-    col_robot, col_empty = st.columns([1, 3]) 
-    with col_robot:
-        st_lottie(lottie_main, height=180, key="main_robot_left")
+# Create two columns for the robot on the left and chat on the right
+col_robot, col_chat = st.columns([1, 2])
 
-if 'history' not in st.session_state:
-    st.session_state.history = []
+with col_robot:
+    if lottie_robot:
+        st_lottie(lottie_robot, height=400, key="robot_animation")
 
-# Questions Grid
-st.markdown("### 📡 ACTIVE FREQUENCIES")
-questions_list = df['question'].tolist()
-cols = st.columns(3)
-clicked_q = None
+with col_chat:
+    if 'history' not in st.session_state:
+        st.session_state.history = []
 
-for i, q in enumerate(questions_list):
-    if cols[i % 3].button(q, key=f"q_{i}"):
-        clicked_q = q
+    st.markdown(f"### <span style='color:{VOXA_CYAN}'>📡 ACTIVE FREQUENCIES</span>", unsafe_allow_html=True)
+    
+    # Frequency buttons
+    q_list = df['question'].tolist()
+    btn_cols = st.columns(2)
+    selected_q = None
+    for i, q in enumerate(q_list):
+        if btn_cols[i % 2].button(q, key=f"btn_{i}"):
+            selected_q = q
 
-# Input
-with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
-    submit = st.form_submit_button("TRANSMIT")
+    # Input form
+    with st.form(key='chat_form', clear_on_submit=True):
+        u_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
+        submit = st.form_submit_button("TRANSMIT")
 
-final_query = clicked_q if clicked_q else (user_query if submit else None)
+    final_q = selected_q if selected_q else (u_query if submit else None)
 
-if final_query:
-    ans = get_response(final_query)
-    st.session_state.history.append({"q": final_query, "a": ans})
-    st.rerun()
+    if final_q:
+        response = get_response(final_q)
+        st.session_state.history.append({"q": final_q, "a": response})
+        st.rerun()
 
-# History display
-for item in reversed(st.session_state.history):
-    st.markdown(f'''
-    <div class="chat-card">
-        <b style="color:{VOXA_CYAN}">SIGNAL:</b> {item["q"]}<br><br>
-        <b>NOVA:</b> {item["a"]}
-    </div>
-    ''', unsafe_allow_html=True)
+    for item in reversed(st.session_state.history):
+        st.markdown(f'''
+        <div class="chat-card">
+            <b style="color:{VOXA_CYAN}">SIGNAL:</b> {item["q"]}<br>
+            <b>NOVA:</b> {item["a"]}
+        </div>
+        ''', unsafe_allow_html=True)
