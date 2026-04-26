@@ -1,5 +1,5 @@
 import streamlit as st
-import pd
+import pandas as pd  # FIXED: Corrected import
 import json
 import nltk
 import requests
@@ -51,32 +51,32 @@ st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* Importing a much chunkier pixel font */
-    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+    /* Professional Pixel-Block Font */
+    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: Deep Black with the precise Icy Blue center glow */
+    /* BACKGROUND: Precise Icy Blue center glow from VOXA image */
     .stApp {
         background: radial-gradient(circle at 50% 50%, #0a2d3d 0%, #000000 85%) !important;
         color: #ffffff;
     }
     
-    /* THE VOXA HEADER: MASSIVE, THICK, SINGLE LINE */
+    /* HEADER: Massive, Single Line, Blocky Glow */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
         font-size: clamp(3rem, 7.5vw, 12rem) !important; 
         font-weight: 700 !important;
-        color: #00e5ff !important; /* Brighter VOXA Cyan */
+        color: #00e5ff !important; 
         text-align: center;
         text-transform: uppercase;
         white-space: nowrap; 
         letter-spacing: -4px;
         margin-top: 10px;
         margin-bottom: 0px;
-        /* STACKED SHADOWS: This makes the font look "Thick" and "Blocky" */
+        /* STACKED SHADOWS for blocky thickness */
         text-shadow: 
             2px 2px 0px #004d4d, 
             4px 4px 0px #004d4d, 
@@ -92,7 +92,7 @@ st.markdown("""
         box-shadow: 0 0 20px #00e5ff;
     }
 
-    /* SIDEBAR: Restoring Left Panel Visibility */
+    /* SIDEBAR styling */
     [data-testid="stSidebar"] {
         background-color: rgba(0, 0, 0, 0.95) !important;
         border-right: 2px solid #00e5ff;
@@ -161,6 +161,7 @@ with st.sidebar:
     st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
+# FIXED: changed unsafe_allow_header to unsafe_allow_html
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
