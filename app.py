@@ -32,6 +32,7 @@ def load_lottieurl(url: str):
     except Exception:
         return None
 
+# The precise animated robot is loaded (moved from sidebar in logic)
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
@@ -46,99 +47,93 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE VOXA REPLICA UI (REFINED EDITION) ---
+# --- 4. THE VOXA REPLICA UI (ANIMATED ROBOT EDITION) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
-    
-    html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
-        font-family: 'Silkscreen', cursive !important;
-    }
+# DEFINE VOXA COLORS FOR REUSABILITY
+VOXA_CYAN = "#00FFA3" # Bright neon cyan
+VOXA_OBSIDIAN = "#000a12" # Dark deep obsidian base
+VOXA_BLUE_GLOW = "#001f2d" # Inner glowing blue aura
+VOXA_GLOW = "rgba(0, 255, 163, 0.4)" # Glow effect
 
-    /* BACKGROUND: Deep Indigo/Blue Cosmic Mix from Image */
-    .stApp {
-        background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #0a0a2e 40%, #000000 100%) !important;
-        color: #ffffff;
-    }
+st.markdown(f"""
+    <style>
+    /* Global Font Styling */
+    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
     
-    /* HEADER: Cyan-Purple Text Gradient */
-    .voxa-header {
-        font-family: 'Silkscreen', cursive !important;
-        font-size: clamp(2.5rem, 6vw, 8rem) !important; 
+    html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {{
+        font-family: 'DotGothic16', sans-serif !important;
+        color: #ffffff;
+    }}
+
+    /* BACKGROUND: Deep Obsidian base with a centered glowing blue aura */
+    .stApp {{
+        background: radial-gradient(circle at center, {VOXA_BLUE_GLOW} 0%, {VOXA_OBSIDIAN} 100%) !important;
+        color: #ffffff;
+    }}
+    
+    /* HEADER: Huge, single-line, pixelated cyan with neon glow */
+    .voxa-header {{
+        font-family: 'DotGothic16', sans-serif !important;
+        font-size: clamp(3rem, 10vw, 8rem) !important; 
         font-weight: 700 !important;
-        background: linear-gradient(to right, #00e5ff, #b452ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: {VOXA_CYAN} !important; 
         text-align: center;
         text-transform: uppercase;
-        white-space: nowrap; 
-        letter-spacing: -3px;
-        margin-top: 10px;
-        margin-bottom: 0px;
-        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
-    }
+        margin-top: 50px;
+        margin-bottom: 20px;
+        text-shadow: 0 0 30px {VOXA_GLOW};
+        letter-spacing: -2px; /* Tight letter spacing like VOXA logo */
+        white-space: nowrap; /* Single line */
+    }}
 
-    .orbital-line {
+    .orbital-line {{
         height: 3px;
-        background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-        width: 80%;
-        margin: 0 auto 40px auto;
-        box-shadow: 0 0 15px #00e5ff;
-    }
+        background: linear-gradient(90deg, transparent, {VOXA_CYAN}, transparent);
+        width: 70%;
+        margin: 0 auto 50px auto;
+        box-shadow: 0 0 15px {VOXA_CYAN};
+    }}
 
-    /* SIDEBAR styling */
-    [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.95) !important;
-        border-right: 2px solid #00e5ff;
-    }
-
-    .sidebar-label {
-        color: #00e5ff;
-        font-size: 0.9rem;
-        letter-spacing: 2px;
-        font-weight: bold;
-    }
-
-    /* NEON CYAN BOXES (Removed the Cringe Purple) */
-    div.stButton > button {
-        background: rgba(0, 229, 255, 0.05) !important;
-        color: #00e5ff !important;
-        border: 2px solid #00e5ff !important;
-        border-radius: 0px !important;
-        font-size: 0.85rem !important;
+    /* Neon Cyan Buttons & Inputs */
+    div.stButton > button {{
+        background: rgba(0, 255, 163, 0.05) !important;
+        color: {VOXA_CYAN} !important;
+        border: 2px solid {VOXA_CYAN} !important;
+        font-size: 1.1rem !important;
+        border-radius: 4px !important;
         transition: 0.3s;
     }
+    div.stButton > button:hover {{
+        background: {VOXA_CYAN} !important;
+        color: #000 !important;
+        box-shadow: 0 0 20px {VOXA_CYAN};
+    }}
 
-    div.stButton > button:hover {
-        background: rgba(0, 229, 255, 0.2) !important;
-        box-shadow: 0 0 20px #00e5ff;
-        color: #fff !important;
-    }
-    
-    .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.8) !important;
-        border: 2px solid #00e5ff !important;
+    .stTextInput input {{
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 2px solid {VOXA_CYAN} !important;
         color: #ffffff !important;
     }
 
-    .chat-card {
-        background: rgba(0, 229, 255, 0.03);
-        border: 1px solid #00e5ff;
-        border-left: 5px solid #00e5ff;
+    .chat-card {{
+        background: rgba(0, 255, 163, 0.03);
+        border: 1px solid rgba(0, 255, 163, 0.2);
         padding: 20px;
         margin-bottom: 15px;
+        border-radius: 4px;
+        border-left: 4px solid {VOXA_CYAN};
     }
+
+    [data-testid="stSidebar"] {{
+        background-color: {VOXA_OBSIDIAN} !important;
+        border-right: 1px solid rgba(0, 255, 163, 0.2);
+    }}
     </style>
     """, unsafe_allow_html=True)
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
-    dev_query = user_input.lower()
-    if "developed" in dev_query or "creator" in dev_query or "who made" in dev_query:
-        return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
-        
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -152,32 +147,31 @@ def get_response(user_input):
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-    if st.button("CLEAR CACHE"):
+    st.title("SETTINGS")
+    if st.button("CLEAR HISTORY"):
         st.session_state.history = []
         st.rerun()
-    
-    st.markdown("---")
-    st.markdown('<p class="sidebar-label">CREDENTIALS</p>', unsafe_allow_html=True)
-    st.write("**DEVELOPER:** Helly Shah")
-    st.write("**ENGINE:** NPCL V2.0")
-    
-    st.markdown("---")
-    st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
+    st.write("**Developer:** Helly Shah")
+    st.markdown(f'<p style="color:{VOXA_CYAN};">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
+# Title: Big, single line, glowing pixel cyan
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
+# THE KEY REQUEST: Display the animated robot on the main page (Left side of interface)
 if lottie_main:
-    col_rob, _ = st.columns([1, 4])
-    with col_rob:
-        st_lottie(lottie_main, height=150, key="main_robot")
+    # Use a column layout to position the robot on the left
+    col_robot, col_empty = st.columns([1, 3]) # Robot in 1/4 of width
+    with col_robot:
+        st_lottie(lottie_main, height=180, key="main_robot_left")
+
+# Rest of the chat interface remains same
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
+# Questions Grid
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
@@ -187,8 +181,9 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
+# Input
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
+    user_query = st.text_input("Transmit Command:", placeholder="ENTER SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
@@ -198,10 +193,11 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
+# History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
+        <b style="color:{VOXA_CYAN}">SIGNAL:</b> {item["q"]}<br><br>
         <b>NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
