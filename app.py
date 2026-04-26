@@ -26,11 +26,9 @@ def preprocess_text(text):
 def load_lottieurl(url: str):
     try:
         r = requests.get(url, timeout=10)
-        if r.status_code != 200:
-            return None
+        if r.status_code != 200: return None
         return r.json()
-    except Exception:
-        return None
+    except: return None
 
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
@@ -49,88 +47,87 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE VOXA UI (LEFT-SIDE GLOW REPAIR) ---
+# --- 4. THE UI REPAIR (SCREEN SIZE & LEFT SIDE FIX) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
-    /* Global transparency for all Streamlit layers */
+    /* 1. REMOVE EXCESSIVE PADDING & REDUCE WIDTH */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 0rem !important;
+        padding-left: 5% !important;
+        padding-right: 5% !important;
+        max-width: 95% !important; /* This stops the 'Too Big' feel */
+    }
+
+    /* 2. DUAL-SIDE GLOW (Adjusted for visibility) */
     [data-testid="stAppViewContainer"] {
         background-color: #000000 !important;
+        background-image: 
+            radial-gradient(circle at 8% 50%, rgba(0, 229, 255, 0.4) 0%, transparent 35%),
+            radial-gradient(circle at 92% 50%, rgba(180, 82, 255, 0.3) 0%, transparent 35%) !important;
+        background-attachment: fixed !important;
     }
 
-    /* Target the Main Area and ensure the glow is at the VERY edges */
-    [data-testid="stAppViewMainArea"] {
-        background: 
-            radial-gradient(circle at 2% 50%, rgba(0, 229, 255, 0.4) 0%, transparent 40%),
-            radial-gradient(circle at 98% 50%, rgba(180, 82, 255, 0.3) 0%, transparent 40%) !important;
-        background-color: #000000 !important;
-    }
-
-    /* Prevent sidebar from blocking the left-side glow */
+    /* 3. FIX SIDEBAR OVERLAP */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.7) !important;
-        backdrop-filter: blur(10px);
+        background-color: rgba(0, 0, 0, 0.8) !important;
         border-right: 1px solid rgba(0, 229, 255, 0.2);
     }
 
-    .main, .block-container {
-        background: transparent !important;
-    }
-
-    * {
-        font-family: 'Silkscreen', cursive !important;
-    }
+    /* 4. CONTENT STYLING */
+    * { font-family: 'Silkscreen', cursive !important; color: white; }
 
     .voxa-header {
-        font-size: clamp(2.5rem, 6vw, 6rem) !important; 
-        font-weight: 700 !important;
+        font-size: clamp(2rem, 5vw, 4.5rem) !important; 
         background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
-        text-transform: uppercase;
-        margin-bottom: 0px;
         filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
+        margin-top: -20px;
     }
 
     .orbital-line {
         height: 2px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-        width: 70%;
-        margin: 0 auto 30px auto;
+        width: 60%;
+        margin: 0 auto 20px auto;
     }
 
+    /* BUTTONS */
     div.stButton > button {
-        background: rgba(0, 229, 255, 0.05) !important;
+        background: rgba(0, 0, 0, 0.6) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 4px !important;
-        transition: 0.3s;
         width: 100%;
+        padding: 10px;
+        font-size: 0.75rem !important;
     }
 
     div.stButton > button:hover {
-        background: rgba(0, 229, 255, 0.2) !important;
-        box-shadow: 0 0 20px #00e5ff;
-        color: #fff !important;
+        box-shadow: 0 0 15px #00e5ff;
+        background: rgba(0, 229, 255, 0.1) !important;
     }
 
+    /* INPUT FIELD */
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.8) !important;
+        background-color: rgba(10, 10, 10, 0.9) !important;
         border: 2px solid #00e5ff !important;
-        color: #ffffff !important;
+        height: 45px;
     }
 
     .chat-card {
-        background: rgba(10, 10, 10, 0.7);
-        border: 1px solid rgba(0, 229, 255, 0.3);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(0, 229, 255, 0.2);
         border-left: 5px solid #00e5ff;
         padding: 15px;
         margin-bottom: 10px;
-        backdrop-filter: blur(5px);
+        border-radius: 4px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -146,19 +143,11 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch. Data not found."
+    return "Neural Signal Mismatch. Signal lost."
 
 # --- 6. INTERFACE ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
-
-# Sidebar Credentials
-with st.sidebar:
-    st.markdown("### SYSTEM SETTINGS")
-    st.write("**DEV:** Helly Shah")
-    if st.button("CLEAR HISTORY"):
-        st.session_state.history = []
-        st.rerun()
 
 if 'history' not in st.session_state:
     st.session_state.history = []
@@ -167,10 +156,12 @@ st.markdown("### 📡 ACTIVE FREQUENCIES")
 cols = st.columns(3)
 clicked_q = None
 
-for i, q in enumerate(df['question'].tolist()):
+# Grid display
+for i, q in enumerate(df['question'].tolist()[:6]):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
+# Transmit Area
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -182,6 +173,7 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
+# History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
