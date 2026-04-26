@@ -1,0 +1,26 @@
+[
+    {
+        "question": "What is Nova AI?",
+        "answer": "Nova AI is a high-precision neural interface designed to provide technical support for the MASF seismic forecasting framework."
+    },
+    {
+        "question": "How does the matching engine work?",
+        "answer": "The engine uses TF-IDF Vectorization and Cosine Similarity to mathematically calculate the best match for your query."
+    },
+    {
+        "question": "What is the MASF Framework?",
+        "answer": "The Multi-Modal AI Seismic Forecasting framework integrates geological sensors and deep learning to predict seismic risk probabilities."
+    },
+    {
+        "question": "Who developed this interface?",
+        "answer": "This project was developed by Shrutika as a technical demonstration of NLP and professional UI integration."
+    },
+    {
+        "question": "What parameters define TF-IDF V2?",
+        "answer": "TF-IDF V2 utilizes NLTK-based lemmatization and a sparse matrix approach to optimize keyword weighting for high-accuracy neural matching."
+    },
+    {
+        "question": "Is this system real-time?",
+        "answer": "Yes, Nova AI processes signals instantly using optimized Python pipelines for low-latency neural responses."
+    }
+]
