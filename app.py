@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd 
+import pandas as pd
 import json
 import nltk
 import requests
@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem import WordNetLemmatizer
 
-# --- SETUP ---
+# --- 1. NLP SETUP ---
 @st.cache_resource
 def setup_nlp():
     nltk.download('punkt')
@@ -22,6 +22,19 @@ def preprocess_text(text):
     tokens = nltk.word_tokenize(text.lower())
     return " ".join([lemmatizer.lemmatize(token) for token in tokens if token.isalnum()])
 
+# --- 2. ASSET LOADING ---
+def load_lottieurl(url: str):
+    try:
+        r = requests.get(url, timeout=10)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except Exception:
+        return None
+
+lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
+
+# --- 3. DATA LOADING ---
 @st.cache_data
 def load_data():
     try:
@@ -29,102 +42,108 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({
-            "question": ["What is Nova AI?", "Who developed this interface?", "How does the matching engine work?", "What parameters define TF-IDF V2?", "What is the MASF Framework?", "Is this system real-time?"], 
-            "answer": ["Nova AI is a neural-synapse chatbot.", "Developed by Helly Shah.", "It uses Cosine Similarity and TF-IDF vectors.", "Frequency and Inverse Document Frequency.", "Multi-Agent System Framework.", "Yes, signal processing is instantaneous."]
-        })
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active."]})
 
 df = load_data()
 
-# --- THE UI (VIBRANT SIDE GLOWS) ---
+# --- 4. THE VOXA REPLICA UI ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
-    /* FORCE GLOBAL BLACK */
-    [data-testid="stAppViewContainer"] {
+    html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
+        font-family: 'Silkscreen', cursive !important;
+    }
+
+    /* BACKGROUND: SOLID BLACK CENTER WITH NEON GRADIENT SIDES */
+    .stApp {
         background-color: #000000 !important;
+        background-image: 
+            radial-gradient(circle at 0% 50%, rgba(0, 229, 255, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 100% 50%, rgba(180, 82, 255, 0.15) 0%, transparent 40%) !important;
+        background-attachment: fixed !important;
+        color: #ffffff;
     }
-
-    /* THE VOXA MIX: HEAVY BLUE (LEFT) AND PURPLE (RIGHT) */
-    [data-testid="stAppViewMainArea"] {
-        background: 
-            radial-gradient(circle at -10% 50%, #00e5ff 0%, transparent 50%),
-            radial-gradient(circle at 110% 50%, #b452ff 0%, transparent 50%) !important;
-        background-color: #000000 !important;
-    }
-
-    /* FIXING PADDING AND TRANSPARENCY */
-    .block-container {
-        padding-top: 2rem !important;
-        max-width: 90% !important;
-        background: transparent !important;
-    }
-
-    [data-testid="stHeader"], .main {
-        background: transparent !important;
-    }
-
-    * { font-family: 'Silkscreen', cursive !important; color: white; }
-
-    /* HEADER */
+    
+    /* HEADER: Cyan-Purple Text Gradient */
     .voxa-header {
-        font-size: clamp(2rem, 5vw, 5rem) !important; 
+        font-family: 'Silkscreen', cursive !important;
+        font-size: clamp(2.5rem, 6vw, 8rem) !important; 
+        font-weight: 700 !important;
         background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
-        margin-top: -10px;
-        filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.6));
+        text-transform: uppercase;
+        white-space: nowrap; 
+        letter-spacing: -3px;
+        margin-top: 10px;
+        margin-bottom: 0px;
+        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
     }
 
     .orbital-line {
         height: 3px;
-        background: linear-gradient(90deg, transparent, #00e5ff, #b452ff, transparent);
-        width: 60%;
-        margin: 0 auto 30px auto;
+        background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+        width: 80%;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 0 15px #00e5ff;
     }
 
-    /* BUTTONS */
+    /* SIDEBAR styling */
+    [data-testid="stSidebar"] {
+        background-color: rgba(0, 0, 0, 0.9) !important;
+        border-right: 2px solid #00e5ff;
+    }
+
+    .sidebar-label {
+        color: #00e5ff;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
+
+    /* NEON CYAN BOXES */
     div.stButton > button {
-        background: rgba(0, 0, 0, 0.8) !important;
+        background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
-        border-radius: 2px !important;
-        width: 100%;
-        padding: 12px;
+        border-radius: 0px !important;
+        font-size: 0.85rem !important;
+        transition: 0.3s;
     }
 
     div.stButton > button:hover {
-        box-shadow: 0 0 25px #00e5ff;
-        background: #00e5ff !important;
-        color: black !important;
+        background: rgba(0, 229, 255, 0.2) !important;
+        box-shadow: 0 0 20px #00e5ff;
+        color: #fff !important;
     }
-
-    /* INPUT */
+    
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.9) !important;
-        border: 2px solid #b452ff !important;
-        color: white !important;
-        height: 50px;
+        background-color: rgba(20, 20, 20, 0.9) !important;
+        border: 2px solid #00e5ff !important;
+        color: #ffffff !important;
     }
 
-    /* CHAT CARDS */
     .chat-card {
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid #b452ff;
-        border-left: 8px solid #00e5ff;
+        background: rgba(0, 229, 255, 0.03);
+        border: 1px solid #00e5ff;
+        border-left: 5px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(10px);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- LOGIC ---
+# --- 5. LOGIC ENGINE ---
 def get_response(user_input):
+    dev_query = user_input.lower()
+    if any(x in dev_query for x in ["developed", "creator", "who made"]):
+        return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
+        
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -134,20 +153,42 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch."
+    return "Neural Signal Mismatch. Data not found in current frequency."
 
-# --- MAIN ---
+# --- 6. SIDEBAR ---
+with st.sidebar:
+    st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
+    if st.button("CLEAR CACHE"):
+        st.session_state.history = []
+        st.rerun()
+    
+    st.markdown("---")
+    st.markdown('<p class="sidebar-label">CREDENTIALS</p>', unsafe_allow_html=True)
+    st.write("**DEVELOPER:** Helly Shah")
+    st.write("**ENGINE:** NPCL V2.0")
+    
+    st.markdown("---")
+    st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
+
+# --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
+
+if lottie_main:
+    col_rob, _ = st.columns([1, 4])
+    with col_rob:
+        st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
 st.markdown("### 📡 ACTIVE FREQUENCIES")
+questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
 
-for i, q in enumerate(df['question'].tolist()[:6]):
+for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
@@ -165,7 +206,7 @@ if final_query:
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <span style="color:#00e5ff; font-weight:bold;">SIGNAL:</span> {item["q"]}<br><br>
-        <span style="color:#b452ff; font-weight:bold;">NOVA:</span> {item["a"]}
+        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
+        <b style="color:#b452ff">NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
