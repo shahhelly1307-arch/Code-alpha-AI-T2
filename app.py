@@ -49,63 +49,68 @@ st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* Import Pixel Font for Title */
-    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+    /* VT323 is more uniform and thicker for pixel styles */
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
-    /* Background: Image 2 Style - Deep Radial Cyan Glow */
+    /* Background: Deep Obsidian with a centered Cyan Aura */
     .stApp {
-        background: radial-gradient(circle at center, #004d4d 0%, #050505 100%) !important;
+        background: radial-gradient(circle at center, #005a5a 0%, #020b0b 40%, #000000 100%) !important;
         color: #ffffff;
     }
     
-    /* THE FONT: Matches VOXA Thick Boldness on Single Line */
-    .voxa-title {
-        font-family: 'DotGothic16', sans-serif !important;
-        font-size: clamp(2rem, 8vw, 5.5rem) !important; /* Large but fits in one line */
-        font-weight: 900 !important;   /* Makes the font thick like Voxa */
-        color: #00FFA3 !important;      /* Exact Cyan Color */
+    /* THE FONT: Uniform, Extra Thick, Single Line */
+    .voxa-style-title {
+        font-family: 'VT323', monospace !important;
+        font-size: clamp(3rem, 10vw, 7.5rem) !important; 
+        font-weight: 900 !important;   /* Maximum thickness */
+        color: #00FFA3 !important;      /* VOXA Cyan */
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: 12px;           /* Clean Spacing */
-        margin-top: 20px;
-        margin-bottom: 5px;
-        white-space: nowrap;            /* Forces single line */
-        text-shadow: 0 0 20px rgba(0, 255, 163, 0.8), 0 0 40px rgba(0, 255, 163, 0.4); 
+        letter-spacing: 10px;
+        margin: 0px;
+        white-space: nowrap;            /* Single line focus */
+        text-shadow: 
+            0 0 10px #00FFA3, 
+            0 0 30px rgba(0, 255, 163, 0.6),
+            0 0 50px rgba(0, 255, 163, 0.3); 
+        line-height: 1;
     }
 
-    /* Orbital Line: Image 2 Glow */
+    /* Orbital Line */
     .orbital-line {
-        height: 2px;
+        height: 3px;
         background: linear-gradient(90deg, transparent, #00FFA3, transparent);
-        width: 85%;
-        margin: 0 auto 40px auto;
+        width: 80%;
+        margin: 5px auto 30px auto;
         box-shadow: 0 0 15px #00FFA3;
     }
 
-    /* Buttons: Clean UI */
+    /* UI Consistency */
     div.stButton > button {
         background: rgba(0, 255, 163, 0.05) !important;
         color: #00FFA3 !important;
-        border: 1px solid #00FFA3 !important;
-        border-radius: 4px !important;
-        font-weight: bold;
+        border: 2px solid #00FFA3 !important;
+        font-family: 'VT323', monospace !important;
+        font-size: 1.5rem !important;
     }
     div.stButton > button:hover {
         background: #00FFA3 !important;
         color: #000 !important;
-        box-shadow: 0 0 15px #00FFA3;
+        box-shadow: 0 0 20px #00FFA3;
     }
 
-    [data-testid="stSidebar"] {
-        background-color: #050505 !important;
-        border-right: 1px solid rgba(0, 255, 163, 0.2);
+    .stTextInput input {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        border: 1px solid #00FFA3 !important;
+        color: #ffffff !important;
+        font-family: 'VT323', monospace !important;
+        font-size: 1.4rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. LOGIC ENGINE (Restoring Helly Shah Credits) ---
+# --- 5. LOGIC ENGINE ---
 def get_response(user_input):
-    # Developer name check
     if "developer" in user_input.lower() or "who developed" in user_input.lower():
         return "This project was developed by Helly Shah as a technical demonstration of NLP and professional UI integration."
     
@@ -118,33 +123,33 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural signal weak. Data not recognized."
+    return "Neural signal weak. Command not recognized."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.title("SETTINGS")
-    if st.button("CLEAR HISTORY"):
+    st.markdown("<h2 style='color:#00FFA3; font-family:VT323;'>SYSTEM CONFIG</h2>", unsafe_allow_html=True)
+    if st.button("CLEAR LOGS"):
         st.session_state.history = []
         st.rerun()
     st.markdown("---")
-    st.write("**Developer:** Helly Shah")
-    st.write("**Project:** Nova Chatterix")
-    st.markdown('<p style="color:#00FFA3;">● STATUS: ONLINE</p>', unsafe_allow_html=True)
+    st.write("**Operator:** Helly Shah")
+    st.write("**Core:** Nova Chatterix")
+    st.markdown('<p style="color:#00FFA3;">● LINK: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# HEADER: One line, thick, cyan glow
-st.markdown('<p class="voxa-title">NOVA CHATTERIX</p>', unsafe_allow_html=True)
+# UNIFORM THICK HEADER
+st.markdown('<p class="voxa-style-title">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Robot Hero
+# Robot Hero with center aura
 if lottie_robot:
-    st_lottie(lottie_robot, height=320, key="hero_bot")
+    st_lottie(lottie_robot, height=350, key="hero_bot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Question Buttons
-st.markdown("### ⚡ ACTIVE SIGNALS")
+# Action Signals
+st.markdown("<h3 style='color:white; font-family:VT323;'>⚡ TRANSMIT SIGNALS</h3>", unsafe_allow_html=True)
 questions = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
@@ -154,7 +159,7 @@ for i, q in enumerate(questions[:6]):
 
 # Input
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Enter Signal:", placeholder="Transmit your command...")
+    user_query = st.text_input("Enter Command:", placeholder="Transmitting...")
     submit = st.form_submit_button("SEND")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
@@ -167,8 +172,8 @@ if final_query:
 # History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
-    <div style="background:rgba(255,255,255,0.02); border-left:4px solid #00FFA3; padding:15px; margin-bottom:10px;">
+    <div style="background:rgba(0, 255, 163, 0.03); border-left:5px solid #00FFA3; padding:20px; margin-bottom:15px; font-family:VT323; font-size:1.3rem;">
         <b style="color:#00FFA3">SIGNAL:</b> {item["q"]}<br><br>
-        <b>NOVA:</b> {item["a"]}
+        <b style="color:white">NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
