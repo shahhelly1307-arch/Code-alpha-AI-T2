@@ -306,7 +306,7 @@ else:
     def get_response(user_input):
         dev_query = user_input.lower()
         if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
-            return "This interface was developed by Shrutika as a technical demonstration of NLP and professional UI integration."
+            return "This interface was developed by Helly Shah as a technical demonstration of NLP and professional UI integration."
         
         if "nova" in dev_query and "who are you" in dev_query:
             return "I am NOVA, a high-frequency neural interface designed for rapid data retrieval."
@@ -355,7 +355,7 @@ else:
         
         st.markdown("---")
         st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
-        st.write("**DEVELOPER:** Shrutika")
+        st.write("**DEVELOPER:** Helly Shah")
         st.write("**ENGINE:** NOVA-V2")
 
     # --- 9. MAIN INTERFACE ---
