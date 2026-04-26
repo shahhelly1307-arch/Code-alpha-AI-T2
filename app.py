@@ -22,7 +22,7 @@ def preprocess_text(text):
     tokens = nltk.word_tokenize(text.lower())
     return " ".join([lemmatizer.lemmatize(token) for token in tokens if token.isalnum()])
 
-# --- 2. ASSET LOADING (Stable & Fast) ---
+# --- 2. ASSET LOADING (Stable & Error-Free) ---
 def load_lottieurl(url: str):
     try:
         r = requests.get(url, timeout=5)
@@ -30,51 +30,59 @@ def load_lottieurl(url: str):
     except:
         return None
 
-# High-fidelity tech robot
+# Clean tech robot matching the Image 2 vibe
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
 @st.cache_data
 def load_data():
     try:
+        # Load your external knowledge base
         with open('faqs.json', 'r') as f:
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({"question": ["System Online"], "answer": ["Please ensure faqs.json is in your repository."]})
+        # Fallback dataset with the correct developer name
+        return pd.DataFrame({
+            "question": ["Who developed this interface?", "What is Nova AI?"],
+            "answer": [
+                "This project was developed by Helly Shah as a technical demonstration of NLP and professional UI integration.",
+                "Nova is a next-gen neural interface assistant."
+            ]
+        })
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (IMAGE 1 & 2 AESTHETIC) ---
+# --- 4. UI CONFIGURATION (STRICT IMAGE 1 & 2 THEME) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* 1. Global Font: Pixel Style (Image 1) */
+    /* 1. Universal Pixel Font (Image 1 Style) */
     @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
     
-    html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
+    * {
         font-family: 'DotGothic16', sans-serif !important;
     }
 
-    /* 2. Background: Center-Glow Radial Gradient (Image 2) */
+    /* 2. Deep Obsidian Gradient Background (Image 2) */
     .stApp {
-        background: radial-gradient(circle at center, #003333 0%, #050505 100%);
+        background: radial-gradient(circle at center, #002b2b 0%, #050505 100%);
         color: #ffffff;
     }
     
-    /* 3. Voxa Pixel Header (Image 1) */
+    /* 3. Pixelated Title (Image 1) */
     .voxa-header {
         font-size: clamp(3rem, 10vw, 6rem);
         color: #00FFA3;
         text-align: center;
         text-transform: uppercase;
         letter-spacing: 15px;
-        margin-top: 40px;
-        text-shadow: 0 0 25px rgba(0, 255, 163, 0.8);
+        margin-top: 30px;
+        text-shadow: 0 0 25px rgba(0, 255, 163, 0.7);
     }
 
-    /* 4. Orbital Glow Line (Image 2) */
+    /* 4. Glowing Orbital Line (Image 2) */
     .orbital-line {
         height: 2px;
         background: linear-gradient(90deg, transparent, #00FFA3, transparent);
@@ -83,39 +91,40 @@ st.markdown("""
         box-shadow: 0 0 15px #00FFA3;
     }
 
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: #050505 !important;
-        border-right: 1px solid rgba(0, 255, 163, 0.2);
-    }
-
-    /* Large Pixelated Buttons */
+    /* Pixelated Buttons and Inputs */
     div.stButton > button {
-        background: rgba(0, 255, 163, 0.08) !important;
+        background: rgba(0, 255, 163, 0.05) !important;
         color: #00FFA3 !important;
         border: 2px solid #00FFA3 !important;
-        font-size: 1.1rem !important;
-        padding: 12px !important;
         text-transform: uppercase;
-        transition: 0.3s ease;
+        padding: 10px 20px !important;
     }
+    
     div.stButton > button:hover {
         background: #00FFA3 !important;
         color: #000 !important;
         box-shadow: 0 0 20px #00FFA3;
     }
 
-    /* Form Fields */
     .stTextInput input {
         background-color: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid #00FFA3 !important;
         color: #ffffff !important;
     }
+
+    [data-testid="stSidebar"] {
+        background-color: #050505 !important;
+        border-right: 1px solid rgba(0, 255, 163, 0.2);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. LOGIC ENGINE ---
+# --- 5. UPDATED LOGIC (Helly Shah Restoration) ---
 def get_response(user_input):
+    # Hardcoded override for developer query to ensure Helly Shah is named
+    if "developer" in user_input.lower() or "who developed" in user_input.lower():
+        return "This project was developed by Helly Shah as a technical demonstration of NLP and professional UI integration."
+    
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -123,11 +132,12 @@ def get_response(user_input):
     tfidf_matrix = vectorizer.fit_transform(corpus)
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
     idx = similarity_scores.argmax()
+    
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch. Data not found."
+    return "Neural buffer empty. Signal not recognized."
 
-# --- 6. SIDEBAR (Your Profile) ---
+# --- 6. SIDEBAR (Helly Shah Identity) ---
 with st.sidebar:
     st.title("SETTINGS")
     if st.button("CLEAR HISTORY"):
@@ -142,21 +152,21 @@ with st.sidebar:
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Hero Section (Image 2 Style - No extra text)
+# Central Robot (Image 2 Landing)
 if lottie_main:
-    st_lottie(lottie_main, height=350, key="hero_robot")
+    st_lottie(lottie_main, height=320, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Dynamic Signal Buttons (Restored)
-st.markdown("### 📡 ACTIVE SIGNALS")
+# Restored Questions List
+st.markdown("### ⚡ ACTIVE SIGNALS")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
 
-for i, q in enumerate(questions_list):
-    if cols[i % 3].button(q, key=f"btn_{i}"):
+for i, q in enumerate(questions_list[:6]): # Show top 6 questions
+    if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
 # Input Transmission
@@ -171,7 +181,7 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# Neural History
+# History Display
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div style="background:rgba(255,255,255,0.02); border-left:4px solid #00FFA3; padding:15px; margin-bottom:10px;">
