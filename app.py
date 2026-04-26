@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd
+import pd
 import json
 import nltk
 import requests
@@ -57,12 +57,12 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: SOLID BLACK CENTER WITH NEON GRADIENT SIDES */
+    /* BACKGROUND: REFINED NEON GRADIENT TO MATCH IMAGE */
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            radial-gradient(circle at 0% 50%, rgba(0, 229, 255, 0.15) 0%, transparent 40%),
-            radial-gradient(circle at 100% 50%, rgba(180, 82, 255, 0.15) 0%, transparent 40%) !important;
+            radial-gradient(circle at -15% 50%, rgba(0, 229, 255, 0.45) 0%, transparent 45%),
+            radial-gradient(circle at 115% 50%, rgba(180, 82, 255, 0.45) 0%, transparent 45%) !important;
         background-attachment: fixed !important;
         color: #ffffff;
     }
