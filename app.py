@@ -17,7 +17,6 @@ if 'intro_done' not in st.session_state:
 if not st.session_state.intro_done:
     st.set_page_config(page_title="Nova Chatterix", layout="wide")
     
-    # Updated Nova Brand Font Size to be bigger (from 1.3rem to 2.5rem)
     intro_html = """
     <!DOCTYPE html>
     <html lang="en">
@@ -67,7 +66,7 @@ if not st.session_state.intro_done:
             }
             .nova-brand {
                 margin-top: -80px;
-                font-size: 2.5rem;
+                font-size: 3.5rem;
                 letter-spacing: 12px;
                 text-transform: uppercase;
                 background: linear-gradient(to bottom, #ffffff, #5ce1ff);
@@ -147,7 +146,7 @@ if not st.session_state.intro_done:
     """
     
     st.components.v1.html(intro_html, height=800)
-    time.sleep(2) # Wait 2 seconds
+    time.sleep(2) 
     st.session_state.intro_done = True
     st.rerun()
 
@@ -186,8 +185,6 @@ else:
             return None
 
     lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
-    # Updated Robot Link for higher reliability
-    lottie_sidebar = load_lottieurl("https://assets1.lottiefiles.com/packages/lf20_at6m9vsc.json")
 
     # --- 5. DATA LOADING ---
     @st.cache_data
@@ -294,6 +291,29 @@ else:
             backdrop-filter: blur(10px);
             border-radius: 4px;
         }
+
+        /* Robot Animations for Sidebar */
+        @keyframes sideHover {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes sideBlink {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+        @keyframes sideEye {
+            0%, 10%, 100% { transform: translate(0, 0); }
+            20%, 40% { transform: translate(2px, -1px); }
+            50%, 70% { transform: translate(-2px, 1px); }
+        }
+        .sidebar-robot-container {
+            animation: sideHover 4s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .side-eye-lid { transform-origin: center; animation: sideBlink 4s ease-in-out infinite; }
+        .side-eye-pupil { animation: sideEye 6s ease-in-out infinite; }
         </style>
         """, unsafe_allow_html=True)
 
@@ -322,15 +342,34 @@ else:
 
     # --- 8. SIDEBAR ---
     with st.sidebar:
-        # ANIMATED ROBOT ABOVE SETTINGS
-        if lottie_sidebar:
-            st_lottie(lottie_sidebar, height=180, key="sidebar_robot")
-        else:
-            # Fallback text if network fails
-            st.markdown("🤖 **SIGNAL ACTIVE**")
+        # EXACT SVG ROBOT FROM HTML
+        st.markdown("""
+        <div class="sidebar-robot-container">
+            <svg width="150" height="150" viewBox="0 0 200 200">
+                <defs>
+                    <linearGradient id="bodyGradSide" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#b85cff" />
+                        <stop offset="60%" stop-color="#7a7aff" />
+                        <stop offset="100%" stop-color="#5ce1ff" />
+                    </linearGradient>
+                </defs>
+                <circle cx="100" cy="35" r="4" fill="#b85cff" />
+                <rect x="98" y="38" width="4" height="12" fill="#b85cff" />
+                <path d="M55 85 C 55 40, 145 40, 145 85 C 145 130, 125 170, 100 170 C 75 170, 55 130, 55 85" 
+                      fill="url(#bodyGradSide)" stroke="white" stroke-width="0.5" />
+                <rect x="65" y="75" width="70" height="42" rx="21" fill="#0c121d" stroke="#5ce1ff" stroke-width="1" />
+                <g class="side-eye-lid">
+                    <circle cx="82" cy="95" r="8" fill="white" />
+                    <circle class="side-eye-pupil" cx="82" cy="95" r="3.5" fill="#0c121d" />
+                    <circle cx="118" cy="95" r="8" fill="white" />
+                    <circle class="side-eye-pupil" cx="118" cy="95" r="3.5" fill="#0c121d" />
+                </g>
+                <path d="M92 122 Q100 128 108 122" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
+            </svg>
+        </div>
+        """, unsafe_allow_html=True)
             
         st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-        # Button text changed to CLEAR CACHE
         if st.button("CLEAR CACHE"):
             st.session_state.history = []
             st.rerun()
@@ -341,8 +380,7 @@ else:
         st.write("**ENGINE:** NOVA-V2")
         
         st.markdown("---")
-        st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
-        st.markdown('<p style="color:#b452ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
+        # Removed SIGNAL: ACTIVE text as requested
 
     # --- 9. MAIN INTERFACE ---
     st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
