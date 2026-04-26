@@ -4,6 +4,7 @@ import json
 import nltk
 import requests
 import time
+import os
 from streamlit_lottie import st_lottie
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -178,8 +179,7 @@ else:
     def load_lottieurl(url: str):
         try:
             r = requests.get(url, timeout=10)
-            if r.status_code != 200:
-                return None
+            if r.status_code != 200: return None
             return r.json()
         except Exception:
             return None
@@ -189,21 +189,22 @@ else:
     # --- 5. DATA LOADING ---
     @st.cache_data
     def load_data():
-        try:
-            with open('faqs.json', 'r') as f:
-                data = json.load(f)
-            return pd.DataFrame(data)
-        except Exception:
-            return pd.DataFrame({
-                "question": ["System Status", "Identity Check"], 
-                "answer": ["Database signal active. Please check faqs.json.", "I am NOVA, your neural interface."]
-            })
+        if os.path.exists('faqs.json'):
+            try:
+                with open('faqs.json', 'r') as f:
+                    data = json.load(f)
+                return pd.DataFrame(data)
+            except Exception:
+                pass
+        
+        return pd.DataFrame({
+            "question": ["System Status", "Identity Check"], 
+            "answer": ["Database signal active. Check faqs.json connection.", "I am NOVA, your neural interface."]
+        })
 
     df = load_data()
 
     # --- 6. THE NOVA CHATTERIX UI ---
-    st.set_page_config(page_title="Nova Chatterix", layout="wide")
-
     st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
@@ -225,15 +226,14 @@ else:
         
         .voxa-header {
             font-family: 'Silkscreen', cursive !important;
-            font-size: clamp(2.5rem, 6vw, 8rem) !important; 
+            font-size: clamp(2.5rem, 6vw, 5rem) !important; 
             font-weight: 700 !important;
             background: linear-gradient(to right, #00e5ff, #b452ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
             text-transform: uppercase;
-            white-space: nowrap; 
-            letter-spacing: -3px;
+            letter-spacing: -1px;
             margin-top: 10px;
             margin-bottom: 0px;
             filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
@@ -292,28 +292,13 @@ else:
             border-radius: 4px;
         }
 
-        /* Robot Animations for Sidebar */
-        @keyframes sideHover {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        @keyframes sideBlink {
-            0%, 45%, 55%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(0.1); }
-        }
-        @keyframes sideEye {
-            0%, 10%, 100% { transform: translate(0, 0); }
-            20%, 40% { transform: translate(2px, -1px); }
-            50%, 70% { transform: translate(-2px, 1px); }
-        }
         .sidebar-robot-container {
             animation: sideHover 4s ease-in-out infinite;
             display: flex;
             justify-content: center;
             margin-bottom: 10px;
         }
-        .side-eye-lid { transform-origin: center; animation: sideBlink 4s ease-in-out infinite; }
-        .side-eye-pupil { animation: sideEye 6s ease-in-out infinite; }
+        @keyframes sideHover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         </style>
         """, unsafe_allow_html=True)
 
@@ -321,7 +306,7 @@ else:
     def get_response(user_input):
         dev_query = user_input.lower()
         if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
-            return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
+            return "This interface was developed by Shrutika as a technical demonstration of NLP and professional UI integration."
         
         if "nova" in dev_query and "who are you" in dev_query:
             return "I am NOVA, a high-frequency neural interface designed for rapid data retrieval."
@@ -331,7 +316,6 @@ else:
         
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(corpus)
-        
         user_vec = vectorizer.transform([processed_input])
         similarity_scores = cosine_similarity(user_vec, tfidf_matrix)
         
@@ -342,12 +326,11 @@ else:
 
     # --- 8. SIDEBAR ---
     with st.sidebar:
-        # EXACT SVG ROBOT FROM HTML
         st.markdown("""
         <div class="sidebar-robot-container">
-            <svg width="150" height="150" viewBox="0 0 200 200">
+            <svg width="120" height="120" viewBox="0 0 200 200">
                 <defs>
-                    <linearGradient id="bodyGradSide" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <linearGradient id="sideGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" stop-color="#b85cff" />
                         <stop offset="60%" stop-color="#7a7aff" />
                         <stop offset="100%" stop-color="#5ce1ff" />
@@ -356,15 +339,11 @@ else:
                 <circle cx="100" cy="35" r="4" fill="#b85cff" />
                 <rect x="98" y="38" width="4" height="12" fill="#b85cff" />
                 <path d="M55 85 C 55 40, 145 40, 145 85 C 145 130, 125 170, 100 170 C 75 170, 55 130, 55 85" 
-                      fill="url(#bodyGradSide)" stroke="white" stroke-width="0.5" />
+                      fill="url(#sideGrad)" stroke="white" stroke-width="0.5" />
                 <rect x="65" y="75" width="70" height="42" rx="21" fill="#0c121d" stroke="#5ce1ff" stroke-width="1" />
-                <g class="side-eye-lid">
-                    <circle cx="82" cy="95" r="8" fill="white" />
-                    <circle class="side-eye-pupil" cx="82" cy="95" r="3.5" fill="#0c121d" />
-                    <circle cx="118" cy="95" r="8" fill="white" />
-                    <circle class="side-eye-pupil" cx="118" cy="95" r="3.5" fill="#0c121d" />
-                </g>
-                <path d="M92 122 Q100 128 108 122" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
+                <circle cx="82" cy="95" r="8" fill="white" /><circle cx="82" cy="95" r="3.5" fill="#0c121d" />
+                <circle cx="118" cy="95" r="8" fill="white" /><circle cx="118" cy="95" r="3.5" fill="#0c121d" />
+                <path d="M92 122 Q100 128 108 122" stroke="white" stroke-width="2" fill="none" />
             </svg>
         </div>
         """, unsafe_allow_html=True)
@@ -376,10 +355,8 @@ else:
         
         st.markdown("---")
         st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
-        st.write("**DEVELOPER:** Helly")
+        st.write("**DEVELOPER:** Shrutika")
         st.write("**ENGINE:** NOVA-V2")
-        
-        st.markdown("---")
 
     # --- 9. MAIN INTERFACE ---
     st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
@@ -387,18 +364,16 @@ else:
 
     if lottie_main:
         col_rob, _ = st.columns([1, 4])
-        with col_rob:
-            st_lottie(lottie_main, height=150, key="main_robot")
+        with col_rob: st_lottie(lottie_main, height=150, key="main_robot")
 
     if 'history' not in st.session_state:
         st.session_state.history = []
 
     st.markdown("### 📡 ACTIVE FREQUENCIES")
-    questions_list = df['question'].tolist()
     cols = st.columns(3)
     clicked_q = None
 
-    for i, q in enumerate(questions_list):
+    for i, q in enumerate(df['question'].tolist()):
         if cols[i % 3].button(q, key=f"q_{i}"):
             clicked_q = q
 
