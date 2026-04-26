@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem import WordNetLemmatizer
 
-# --- 1. NLP SETUP (Ensures necessary components are loaded) ---
+# --- 1. NLP SETUP ---
 @st.cache_resource
 def setup_nlp():
     nltk.download('punkt')
@@ -22,7 +22,7 @@ def preprocess_text(text):
     tokens = nltk.word_tokenize(text.lower())
     return " ".join([lemmatizer.lemmatize(token) for token in tokens if token.isalnum()])
 
-# --- 2. ASSET LOADING (Lottie Robot) ---
+# --- 2. ASSET LOADING ---
 def load_lottieurl(url: str):
     try:
         r = requests.get(url, timeout=10)
@@ -34,7 +34,7 @@ def load_lottieurl(url: str):
 
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
-# --- 3. DATA LOADING (FAQs) ---
+# --- 3. DATA LOADING ---
 @st.cache_data
 def load_data():
     try:
@@ -46,71 +46,75 @@ def load_data():
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (THEMING ENGINE) ---
+# --- 4. UI CONFIGURATION (VOXA IMAGE 2 REPLICA) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* 1. Global Font and Styling (DotGothic for pixel effect) */
+    /* Professional Pixel Font */
     @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
         font-family: 'DotGothic16', sans-serif !important;
-        color: #ffffff;
     }
 
-    /* 2. THE BACKGROUND: Deep Black with Centered Icy Blue Glow (Image 2 Replica) */
+    /* BACKGROUND: The Deep Blue Radial Glow from Image 2 */
     .stApp {
-        background: 
-            radial-gradient(circle at center, #0a2d3d 0%, #000000 85%) !important;
+        background: radial-gradient(circle at 50% 50%, #0a2d3d 0%, #000000 85%) !important;
         color: #ffffff;
     }
     
-    /* 3. THE HEADER: ULTRA-THICK, HUGE, & ICY CYAN (Image 2 Replica) */
+    /* HEADER: Massive, Single Line, Icy Blue Glow */
     .voxa-header {
-        font-family: 'DotGothic16', sans-serif !important;
-        font-size: clamp(3rem, 11vw, 10rem); /* Extremely large */
+        font-size: clamp(3rem, 8vw, 12rem) !important; 
         font-weight: 900 !important;
-        color: #00e5ff !important; /* Brighter, Icy Cyan */
+        color: #00e5ff !important; 
         text-align: center;
         text-transform: uppercase;
-        line-height: 0.85; /* Tight vertical spacing */
-        letter-spacing: -6px; /* Tight horizontal spacing like VOXA logo */
-        margin-top: 30px;
-        margin-bottom: 10px;
-        /* Layered text shadows create the 'thick' block look and glow */
+        white-space: nowrap; 
+        letter-spacing: -5px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        padding-top: 20px;
         text-shadow: 
-            4px 4px 0px #004d4d,
+            5px 5px 0px #004d4d,
             0 0 50px rgba(0, 229, 255, 0.6);
     }
 
-    /* Horizontal line matching the glow color */
     .orbital-line {
         height: 3px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
         width: 80%;
-        margin: 0 auto 30px auto;
-        box-shadow: 0 0 15px #00e5ff;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 0 20px #00e5ff;
     }
 
-    /* Sidebar and Button styling updated to match new theme */
+    /* SIDEBAR: Restoring the Left Side Visibility */
+    [data-testid="stSidebar"] {
+        background-color: rgba(0, 0, 0, 0.9) !important;
+        border-right: 1px solid #00e5ff;
+        width: 300px !important;
+    }
+
+    .sidebar-label {
+        color: #00e5ff;
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
+
+    /* Buttons & Inputs */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
-        font-size: 1.1rem !important;
+        width: 100%;
     }
-    div.stButton > button:hover {
-        background: #00e5ff !important;
-        color: #000 !important;
-        box-shadow: 0 0 20px #00e5ff;
-    }
-
+    
     .stTextInput input {
         background-color: rgba(0, 0, 0, 0.8) !important;
         border: 2px solid #00e5ff !important;
         color: #ffffff !important;
-        font-size: 1.3rem;
     }
 
     .chat-card {
@@ -124,6 +128,11 @@ st.markdown("""
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
+    # Professional Developer Response Override
+    dev_query = user_input.lower()
+    if "developed" in dev_query or "creator" in dev_query or "who made" in dev_query:
+        return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
+        
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -135,21 +144,27 @@ def get_response(user_input):
         return df.iloc[idx]['answer']
     return "Neural Signal Mismatch. Data not found."
 
-# --- 6. SIDEBAR (Restored and Styled) ---
+# --- 6. SIDEBAR (RESTORED LEFT SIDE) ---
 with st.sidebar:
-    st.title("SETTINGS")
+    st.markdown('<p class="sidebar-label">SETTINGS</p>', unsafe_allow_html=True)
     if st.button("CLEAR HISTORY"):
         st.session_state.history = []
         st.rerun()
-    st.write("**Developer:** Helly Shah")
+    
+    st.markdown("---")
+    st.markdown('<p class="sidebar-label">NPCL CONTROL</p>', unsafe_allow_html=True)
+    st.write("**DEVELOPER:** Helly Shah")
+    st.write("**ENGINE:** NPCL V2.0")
+    st.write("**STATUS:** STABLE")
+    
+    st.markdown("---")
     st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# Title: Big, Thick, and esattamente the VOXA styling
-st.markdown('<p class="voxa-header">NOVA<br>CHATTERIX</p>', unsafe_allow_html=True)
+st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Robot Positioning (Top Left)
 if lottie_main:
     col_rob, _ = st.columns([1, 4])
     with col_rob:
@@ -158,7 +173,7 @@ if lottie_main:
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Questions Grid
+# Frequencies Grid
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
@@ -168,7 +183,7 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Input
+# Form
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="ENTER SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -180,7 +195,6 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
