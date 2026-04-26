@@ -11,11 +11,11 @@ from nltk.stem import WordNetLemmatizer
 # --- 1. NLP SETUP ---
 @st.cache_resource
 def setup_nlp():
-    try:
+try:
         nltk.data.find('tokenizers/punkt')
     except LookupError:
         nltk.download('punkt')
-    try:
+try:
         nltk.data.find('corpora/wordnet')
     except LookupError:
         nltk.download('wordnet')
