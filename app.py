@@ -46,7 +46,7 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE VOXA REPLICA UI (BLUE/PURPLE GRADIENT EDITION) ---
+# --- 4. THE VOXA REPLICA UI (REFINED EDITION) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
@@ -57,18 +57,17 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: The Blue/Purple Cosmic Mix from the image */
+    /* BACKGROUND: Deep Indigo/Blue Cosmic Mix from Image */
     .stApp {
         background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #0a0a2e 40%, #000000 100%) !important;
         color: #ffffff;
     }
     
-    /* HEADER: Dual-tone Blue/Purple Glow with blocky font */
+    /* HEADER: Cyan-Purple Text Gradient */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
-        font-size: clamp(2.5rem, 6.5vw, 9rem) !important; 
+        font-size: clamp(2.5rem, 6vw, 8rem) !important; 
         font-weight: 700 !important;
-        /* Icy Blue to Light Purple gradient effect on text */
         background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -78,52 +77,55 @@ st.markdown("""
         letter-spacing: -3px;
         margin-top: 10px;
         margin-bottom: 0px;
-        filter: drop-shadow(0 0 20px rgba(180, 82, 255, 0.5));
+        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
     }
 
     .orbital-line {
-        height: 4px;
-        background: linear-gradient(90deg, transparent, #00e5ff, #b452ff, transparent);
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #00e5ff, transparent);
         width: 80%;
         margin: 0 auto 40px auto;
-        box-shadow: 0 0 15px #b452ff;
+        box-shadow: 0 0 15px #00e5ff;
     }
 
-    /* SIDEBAR styling matching the new palette */
+    /* SIDEBAR styling */
     [data-testid="stSidebar"] {
-        background-color: rgba(10, 5, 20, 0.95) !important;
-        border-right: 2px solid #b452ff;
+        background-color: rgba(0, 0, 0, 0.95) !important;
+        border-right: 2px solid #00e5ff;
     }
 
     .sidebar-label {
-        color: #b452ff;
+        color: #00e5ff;
         font-size: 0.9rem;
         letter-spacing: 2px;
         font-weight: bold;
     }
 
+    /* NEON CYAN BOXES (Removed the Cringe Purple) */
     div.stButton > button {
-        background: rgba(180, 82, 255, 0.05) !important;
+        background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
-        border: 2px solid #b452ff !important;
-        border-radius: 4px !important;
+        border: 2px solid #00e5ff !important;
+        border-radius: 0px !important;
         font-size: 0.85rem !important;
+        transition: 0.3s;
     }
 
     div.stButton > button:hover {
-        border-color: #00e5ff !important;
-        box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        background: rgba(0, 229, 255, 0.2) !important;
+        box-shadow: 0 0 20px #00e5ff;
+        color: #fff !important;
     }
     
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.7) !important;
-        border: 2px solid #b452ff !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        border: 2px solid #00e5ff !important;
         color: #ffffff !important;
     }
 
     .chat-card {
-        background: rgba(26, 11, 46, 0.6);
-        border: 1px solid #b452ff;
+        background: rgba(0, 229, 255, 0.03);
+        border: 1px solid #00e5ff;
         border-left: 5px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
@@ -151,7 +153,7 @@ def get_response(user_input):
 # --- 6. SIDEBAR ---
 with st.sidebar:
     st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-    if st.button("RESET CONTEXT"):
+    if st.button("CLEAR CACHE"):
         st.session_state.history = []
         st.rerun()
     
@@ -161,8 +163,8 @@ with st.sidebar:
     st.write("**ENGINE:** NPCL V2.0")
     
     st.markdown("---")
-    st.markdown('<p style="color:#b452ff;">● STATUS: ENCRYPTED</p>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#00e5ff;">● SIGNAL: SYNCHRONIZED</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
@@ -200,6 +202,6 @@ for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
         <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
-        <b style="color:#b452ff">NOVA:</b> {item["a"]}
+        <b>NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
