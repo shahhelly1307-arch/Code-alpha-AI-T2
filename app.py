@@ -42,6 +42,7 @@ def load_lottieurl(url: str):
     except Exception:
         return None
 
+# This is the animated robot that "tells hi"
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
@@ -56,7 +57,11 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE NOVO CHATTERIX UI & STYLING ---
+# --- 4. SESSION STATE FOR TRANSITION ---
+if 'app_mode' not in st.session_state:
+    st.session_state.app_mode = 'intro'
+
+# --- 5. THE UI STYLING ---
 st.set_page_config(page_title="Novo Chatterix", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
@@ -70,166 +75,133 @@ st.markdown("""
     .stApp {
         background-color: #050505 !important; 
         background-image: 
-            radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.15) 0%, transparent 60%), 
-            radial-gradient(circle at 100% 100%, rgba(180, 82, 255, 0.15) 0%, transparent 60%),
-            linear-gradient(135deg, #001214 0%, #11001c 100%) !important;
-        background-attachment: fixed !important;
-        background-size: cover;
+            radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.1) 0%, transparent 50%), 
+            radial-gradient(circle at 100% 100%, rgba(180, 82, 255, 0.1) 0%, transparent 50%),
+            linear-gradient(135deg, #010a0a 0%, #0a010d 100%) !important;
         color: #ffffff;
     }
     
+    /* THE HEADER */
     .voxa-header {
-        font-family: 'Silkscreen', cursive !important;
-        font-size: clamp(2.5rem, 6vw, 6rem) !important; 
+        font-size: clamp(2rem, 8vw, 6rem) !important; 
         font-weight: 700 !important;
         background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
         text-transform: uppercase;
-        letter-spacing: -2px;
-        margin-top: 0px;
-        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
+        margin: 0;
+        filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.5));
     }
 
-    /* THE HALF GRADIENT CIRCLE FOR INTRO */
-    .intro-circle {
+    /* THE HALF CIRCLE GLOW (From your Image) */
+    .half-circle-glow {
         position: fixed;
-        bottom: -400px;
+        bottom: -350px;
         left: 50%;
         transform: translateX(-50%);
-        width: 1200px;
-        height: 800px;
-        background: radial-gradient(circle at 50% 0%, #00e5ff 0%, #b452ff 30%, transparent 70%);
+        width: 1000px;
+        height: 600px;
+        background: radial-gradient(circle at 50% 0%, #00e5ff 0%, #b452ff 35%, transparent 70%);
         border-radius: 50%;
         z-index: -1;
-        opacity: 0.6;
+        opacity: 0.7;
     }
 
     .orbital-line {
-        height: 3px;
+        height: 2px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-        width: 80%;
-        margin: 0 auto 40px auto;
-        box-shadow: 0 0 15px #00e5ff;
+        width: 70%;
+        margin: 0 auto 30px auto;
+        box-shadow: 0 0 10px #00e5ff;
     }
 
-    [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.9) !important;
-        border-right: 1px solid rgba(0, 229, 255, 0.3);
-    }
-
-    div.stButton > button {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(0, 229, 255, 0.5) !important;
-        border-radius: 50px !important;
-        transition: 0.3s;
-    }
-
-    div.stButton > button:hover {
-        background: rgba(0, 229, 255, 0.2) !important;
-        box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
-    }
+    /* Sidebars and Cards */
+    [data-testid="stSidebar"] { background-color: #000000 !important; border-right: 1px solid #00e5ff33; }
     
-    .stTextInput input {
-        background-color: rgba(20, 20, 20, 0.7) !important;
-        border: 1px solid rgba(0, 229, 255, 0.5) !important;
-        color: #ffffff !important;
-        border-radius: 10px !important;
-    }
-
     .chat-card {
-        background: rgba(255, 255, 255, 0.03);
-        border-left: 5px solid #00e5ff;
-        padding: 20px;
-        margin-bottom: 15px;
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 4px solid #00e5ff;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 4px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. LOGIC ENGINE ---
-def get_response(user_input):
-    dev_query = user_input.lower()
-    if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
-        return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
-        
-    processed_input = preprocess_text(user_input)
-    corpus = df['question'].apply(preprocess_text).tolist()
-    corpus.append(processed_input)
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(corpus)
-    similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
-    idx = similarity_scores.argmax()
-    if similarity_scores[0][idx] > 0.2:
-        return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch. Data not found in current frequency."
-
-# --- 6. INITIALIZATION & SESSION STATE ---
-if 'show_chat' not in st.session_state:
-    st.session_state.show_chat = False
-
-# --- 7. INTRO SCREEN (SPLASH) ---
-if not st.session_state.show_chat:
-    # Hide sidebar during intro
-    st.markdown("<style>#MainMenu {visibility: hidden;} [data-testid='stSidebar'] {display: none;} </style>", unsafe_allow_html=True)
+# --- 6. INTRO SCREEN LOGIC ---
+if st.session_state.app_mode == 'intro':
+    # Hide everything but the intro
+    st.markdown("<style>[data-testid='stSidebar'] {display:none;} #MainMenu {visibility:hidden;}</style>", unsafe_allow_html=True)
     
+    # Empty space to push content down
     st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
     
-    # Robot and Name
-    col_a, col_b, col_c = st.columns([1, 2, 1])
-    with col_b:
+    col_l, col_c, col_r = st.columns([1, 2, 1])
+    with col_c:
         if lottie_main:
-            st_lottie(lottie_main, height=400, key="intro_robot_wave")
-        st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
+            st_lottie(lottie_main, height=350, key="waving_robot")
+        st.markdown('<h1 class="voxa-header">NOVA CHATTERIX</h1>', unsafe_allow_html=True)
     
-    # The Gradient Half Circle at the bottom
-    st.markdown('<div class="intro-circle"></div>', unsafe_allow_html=True)
+    # Show the half circle at bottom
+    st.markdown('<div class="half-circle-glow"></div>', unsafe_allow_html=True)
     
-    # Logic to switch after 2 seconds
-    time.sleep(2.5) # Giving extra 0.5s for the wave animation to settle
-    st.session_state.show_chat = True
+    # Wait for the robot to wave twice (approx 2.5 seconds)
+    time.sleep(2.5)
+    st.session_state.app_mode = 'chat'
     st.rerun()
 
-# --- 8. MAIN CHAT INTERFACE (ONLY AFTER INTRO) ---
+# --- 7. CHAT INTERFACE LOGIC ---
 else:
+    # --- LOGIC ENGINE ---
+    def get_response(user_input):
+        dev_query = user_input.lower()
+        if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
+            return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
+        processed_input = preprocess_text(user_input)
+        corpus = df['question'].apply(preprocess_text).tolist()
+        corpus.append(processed_input)
+        vectorizer = TfidfVectorizer()
+        tfidf_matrix = vectorizer.fit_transform(corpus)
+        similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
+        idx = similarity_scores.argmax()
+        if similarity_scores[0][idx] > 0.2:
+            return df.iloc[idx]['answer']
+        return "Neural Signal Mismatch. Data not found in current frequency."
+
+    # SIDEBAR
     with st.sidebar:
-        st.markdown('<p style="color:#00e5ff; font-weight:bold;">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-        if st.button("RESET SYSTEM"):
+        st.markdown('<p style="color:#00e5ff;">SYSTEM STATUS</p>', unsafe_allow_html=True)
+        if st.button("RESTART INTERFACE"):
+            st.session_state.app_mode = 'intro'
             st.session_state.history = []
-            st.session_state.show_chat = False # Option to return to intro
             st.rerun()
-        
-        st.markdown("---")
-        st.markdown('<p style="color:#00e5ff; font-weight:bold;">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
         st.write("**DEVELOPER:** Helly")
-        st.write("**ENGINE:** NPCL V2.0")
-        
-        st.markdown("---")
-        st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
 
-    # Main Page Layout
-    st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
+    # MAIN CHAT UI
+    st.markdown('<h1 class="voxa-header">NOVA CHATTERIX</h1>', unsafe_allow_html=True)
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
-
-    if lottie_main:
-        col_rob, _ = st.columns([1, 4])
-        with col_rob:
-            st_lottie(lottie_main, height=150, key="chat_robot_small")
 
     if 'history' not in st.session_state:
         st.session_state.history = []
 
-    st.markdown("### 📡 ACTIVE FREQUENCIES")
+    # Small robot icon for chat view
+    col_icon, _ = st.columns([1, 5])
+    with col_icon:
+        if lottie_main:
+            st_lottie(lottie_main, height=120, key="chat_robot")
+
+    # Question Buttons
+    st.markdown("### 📡 FREQUENCIES")
     questions_list = df['question'].tolist()
     cols = st.columns(3)
     clicked_q = None
 
     for i, q in enumerate(questions_list):
-        if cols[i % 3].button(q, key=f"q_{i}"):
+        if cols[i % 3].button(q, key=f"btn_{i}"):
             clicked_q = q
 
+    # Input Form
     with st.form(key='chat_form', clear_on_submit=True):
         user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
         submit = st.form_submit_button("TRANSMIT")
@@ -241,10 +213,11 @@ else:
         st.session_state.history.append({"q": final_query, "a": ans})
         st.rerun()
 
+    # Display History
     for item in reversed(st.session_state.history):
         st.markdown(f'''
         <div class="chat-card">
-            <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
+            <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br>
             <b style="color:#b452ff">NOVO:</b> {item["a"]}
         </div>
         ''', unsafe_allow_html=True)
