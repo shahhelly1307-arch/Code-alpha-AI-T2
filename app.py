@@ -50,17 +50,9 @@ if not st.session_state.intro_done:
                 z-index: 10;
                 animation: hover 4s ease-in-out infinite;
             }
-            .eye-pupil {
-                animation: eyeMovement 6s ease-in-out infinite;
-            }
-            .eye-lid {
-                transform-origin: center;
-                animation: blink 4s ease-in-out infinite;
-            }
-            .waving-arm {
-                transform-origin: 145px 135px;
-                animation: bigWave 0.8s ease-in-out 2;
-            }
+            .eye-pupil { animation: eyeMovement 6s ease-in-out infinite; }
+            .eye-lid { transform-origin: center; animation: blink 4s ease-in-out infinite; }
+            .waving-arm { transform-origin: 145px 135px; animation: bigWave 0.8s ease-in-out 2; }
             .arc-svg {
                 width: 950px;
                 height: 350px;
@@ -77,24 +69,15 @@ if not st.session_state.intro_done:
                 -webkit-text-fill-color: transparent;
                 opacity: 0.9;
             }
-            @keyframes hover {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-25px); }
-            }
-            @keyframes bigWave {
-                0%, 100% { transform: rotate(0deg); }
-                50% { transform: rotate(-25deg) scale(1.1); }
-            }
+            @keyframes hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-25px); } }
+            @keyframes bigWave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-25deg) scale(1.1); } }
             @keyframes eyeMovement {
                 0%, 10%, 100% { transform: translate(0, 0); }
                 20%, 40% { transform: translate(3px, -1px); }
                 50%, 70% { transform: translate(-3px, 1px); }
                 80% { transform: translate(0, -2px); }
             }
-            @keyframes blink {
-                0%, 45%, 55%, 100% { transform: scaleY(1); }
-                50% { transform: scaleY(0.1); }
-            }
+            @keyframes blink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
         </style>
     </head>
     <body>
@@ -206,17 +189,11 @@ else:
 
     df = load_data()
 
-    # --- 6. THE NOVA CHATTERIX UI (With Responsive Mode Logic) ---
-    
-    # Mode Switcher Logic
-    container_width = "100%"
-    container_border = "none"
-    container_margin = "0"
-    
-    if st.session_state.view_mode == "ANDROID MODE":
-        container_width = "400px"
-        container_border = "12px solid #1a1a1a"
-        container_margin = "auto"
+    # --- 6. THE NOVA CHATTERIX UI ---
+    # Determine sizing based on mode
+    c_width = "400px" if st.session_state.view_mode == "ANDROID MODE" else "100%"
+    c_border = "12px solid #1a1a1a" if st.session_state.view_mode == "ANDROID MODE" else "none"
+    c_margin = "auto" if st.session_state.view_mode == "ANDROID MODE" else "0"
 
     st.markdown(f"""
         <style>
@@ -226,13 +203,12 @@ else:
             font-family: 'Silkscreen', cursive !important;
         }}
 
-        /* MODE HANDLER */
         .block-container {{
-            max-width: {container_width} !important;
-            border: {container_border} !important;
+            max-width: {c_width} !important;
+            border: {c_border} !important;
             border-radius: 40px;
             padding-top: 2rem !important;
-            margin: {container_margin} !important;
+            margin: {c_margin} !important;
             background: rgba(5, 5, 5, 0.8) !important;
             box-shadow: 0 0 50px rgba(0, 229, 255, 0.1);
         }}
@@ -249,9 +225,7 @@ else:
         }}
         
         .voxa-header {{
-            font-family: 'Silkscreen', cursive !important;
             font-size: clamp(1.8rem, 5vw, 4rem) !important; 
-            font-weight: 700 !important;
             background: linear-gradient(to right, #00e5ff, #b452ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -259,7 +233,6 @@ else:
             text-transform: uppercase;
             letter-spacing: -1px;
             margin-top: 10px;
-            margin-bottom: 0px;
             filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
         }}
 
@@ -276,21 +249,12 @@ else:
             border-right: 1px solid rgba(0, 229, 255, 0.3);
         }}
 
-        .sidebar-label {{
-            color: #00e5ff;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-            font-weight: bold;
-        }}
-
         div.stButton > button {{
             background: rgba(255, 255, 255, 0.05) !important;
             color: #ffffff !important;
             border: 1px solid rgba(0, 229, 255, 0.5) !important;
             border-radius: 50px !important;
-            font-size: 0.85rem !important;
             transition: 0.3s;
-            padding: 10px 20px;
             width: 100%;
         }}
 
@@ -300,13 +264,6 @@ else:
             border: 1px solid #00e5ff !important;
         }}
         
-        .stTextInput input {{
-            background-color: rgba(20, 20, 20, 0.7) !important;
-            border: 1px solid rgba(0, 229, 255, 0.5) !important;
-            color: #ffffff !important;
-            border-radius: 10px !important;
-        }}
-
         .chat-card {{
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(0, 229, 255, 0.2);
@@ -317,13 +274,17 @@ else:
             border-radius: 4px;
         }}
 
+        @keyframes sideHover {{
+            0%, 100% {{ transform: translateY(0); }}
+            50% {{ transform: translateY(-10px); }}
+        }}
+
         .sidebar-robot-container {{
             animation: sideHover 4s ease-in-out infinite;
             display: flex;
             justify-content: center;
             margin-bottom: 10px;
         }}
-        @keyframes sideHover {{ 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }}
         </style>
         """, unsafe_allow_html=True)
 
@@ -332,18 +293,15 @@ else:
         dev_query = user_input.lower()
         if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
             return "This interface was developed by Helly Shah as a technical demonstration of NLP and professional UI integration."
-        
         if "nova" in dev_query and "who are you" in dev_query:
             return "I am NOVA, a high-frequency neural interface designed for rapid data retrieval."
 
         processed_input = preprocess_text(user_input)
         corpus = df['question'].apply(preprocess_text).tolist()
-        
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(corpus)
         user_vec = vectorizer.transform([processed_input])
         similarity_scores = cosine_similarity(user_vec, tfidf_matrix)
-        
         idx = similarity_scores.argmax()
         if similarity_scores[0][idx] > 0.2:
             return df.iloc[idx]['answer']
@@ -373,10 +331,8 @@ else:
         </div>
         """, unsafe_allow_html=True)
             
-        st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-        
-        # REAL MODE SWITCHER
-        mode = st.radio("SELECT DISPLAY FREQUENCY:", ["PC MODE", "ANDROID MODE"], index=0 if st.session_state.view_mode == "PC MODE" else 1)
+        st.markdown('**INTERFACE SETTINGS**')
+        mode = st.radio("DISPLAY FREQUENCY:", ["PC MODE", "ANDROID MODE"], index=0 if st.session_state.view_mode == "PC MODE" else 1)
         if mode != st.session_state.view_mode:
             st.session_state.view_mode = mode
             st.rerun()
@@ -386,7 +342,6 @@ else:
             st.rerun()
         
         st.markdown("---")
-        st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
         st.write("**DEVELOPER:** Helly Shah")
         st.write("**ENGINE:** NOVA-V2")
 
@@ -395,7 +350,6 @@ else:
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
     if lottie_main:
-        # Centering the robot for Android mode
         _, col_rob, _ = st.columns([1, 2, 1])
         with col_rob: st_lottie(lottie_main, height=150, key="main_robot")
 
@@ -403,8 +357,6 @@ else:
         st.session_state.history = []
 
     st.markdown("### 📡 ACTIVE FREQUENCIES")
-    
-    # Grid adjustment for mobile
     num_cols = 1 if st.session_state.view_mode == "ANDROID MODE" else 3
     cols = st.columns(num_cols)
     clicked_q = None
