@@ -9,14 +9,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem import WordNetLemmatizer
 
-# --- 1. NLP SETUP ---
+# --- 1. NLP & ASSET SETUP ---
 @st.cache_resource
 def setup_nlp():
-    for d in ['punkt', 'wordnet', 'punkt_tab']:
+    for package in ['punkt', 'wordnet', 'punkt_tab']:
         try:
-            nltk.data.find(f'tokenizers/{d}' if 'punkt' in d else f'corpora/{d}')
+            nltk.data.find(f'tokenizers/{package}' if 'punkt' in package else f'corpora/{package}')
         except LookupError:
-            nltk.download(d)
+            nltk.download(package, quiet=True)
 
 setup_nlp()
 lemmatizer = WordNetLemmatizer()
@@ -25,61 +25,62 @@ def preprocess_text(text):
     tokens = nltk.word_tokenize(text.lower())
     return " ".join([lemmatizer.lemmatize(token) for token in tokens if token.isalnum()])
 
-# --- 2. ASSET LOADING ---
 def load_lottieurl(url: str):
     try:
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=5)
         return r.json() if r.status_code == 200 else None
     except:
         return None
 
-# The waving robot
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
-# --- 3. DATA LOADING ---
 @st.cache_data
 def load_data():
     try:
         with open('faqs.json', 'r') as f:
             return pd.DataFrame(json.load(f))
     except:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Active. Check faqs.json"]})
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database active. Check faqs.json."]})
 
 df = load_data()
 
-# --- 4. STATE MANAGEMENT (The "Merge" Switch) ---
-if 'view_mode' not in st.session_state:
-    st.session_state.view_mode = "intro"
+# --- 2. STATE MANAGEMENT ---
+if 'view' not in st.session_state:
+    st.session_state.view = "intro"
 
-# --- 5. THE UI STYLING (Universal) ---
+# --- 3. UI STYLING (YOUR ORIGINAL DESIGN) ---
 st.set_page_config(page_title="Novo Chatterix", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
+    
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
         font-family: 'Silkscreen', cursive !important;
     }
+
     .stApp {
         background-color: #050505 !important; 
         background-image: 
-            radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.15) 0%, transparent 60%), 
+            radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.2) 0%, transparent 60%), 
             linear-gradient(135deg, #001214 0%, #11001c 100%) !important;
+        background-attachment: fixed !important;
+        background-size: cover;
     }
-    
-    /* THE HALF-CIRCLE GLOW FROM IMAGE */
-    .intro-glow-arc {
+
+    /* THE HALF-CIRCLE GRADIENT FROM THE IMAGE */
+    .glow-horizon {
         position: fixed;
-        bottom: -350px;
+        bottom: -300px;
         left: 50%;
         transform: translateX(-50%);
-        width: 1200px;
-        height: 700px;
+        width: 1000px;
+        height: 600px;
         background: radial-gradient(circle at 50% 0%, #00e5ff 0%, #b452ff 35%, transparent 70%);
         border-radius: 50%;
         z-index: -1;
         opacity: 0.8;
-        filter: blur(15px);
+        filter: blur(20px);
     }
 
     .voxa-header {
@@ -103,48 +104,46 @@ st.markdown("""
         background: rgba(255, 255, 255, 0.03);
         border-left: 5px solid #00e5ff;
         padding: 20px; margin-bottom: 15px;
-        border-radius: 4px;
+        border: 1px solid rgba(0, 229, 255, 0.2);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 6. PAGE 1: THE INTRO ---
-if st.session_state.view_mode == "intro":
-    # Hide Sidebar during intro
+# --- 4. PAGE 1: THE INTRO SEQUENCE ---
+if st.session_state.view == "intro":
+    # Hide sidebar during intro
     st.markdown("<style>[data-testid='stSidebar'] {display: none;}</style>", unsafe_allow_html=True)
     
     st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
     
-    # Show Waving Robot
-    col_l, col_c, col_r = st.columns([1, 2, 1])
-    with col_c:
+    # Robot Waving (Shaking hand)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
         if lottie_main:
-            st_lottie(lottie_main, height=450, key="intro_robot_wave")
+            st_lottie(lottie_main, height=400, key="waving_intro")
         st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
     
-    # The Half Circle Glow at the bottom
-    st.markdown('<div class="intro-glow-arc"></div>', unsafe_allow_html=True)
+    # The Half Circle Glow
+    st.markdown('<div class="glow-horizon"></div>', unsafe_allow_html=True)
     
-    # Transition after 2.5 seconds (Robot waves twice)
+    # Pause for 2.5 seconds then transition
     time.sleep(2.5)
-    st.session_state.view_mode = "chatbot"
+    st.session_state.view = "main"
     st.rerun()
 
-# --- 7. PAGE 2: THE CHATBOT (NO CHANGES TO YOUR ORIGINAL DESIGN) ---
+# --- 5. PAGE 2: THE CHATBOT (YOUR ORIGINAL WORK) ---
 else:
-    # Sidebar
     with st.sidebar:
-        st.markdown('<p style="color:#00e5ff; font-weight:bold;">SYSTEM: ONLINE</p>', unsafe_allow_html=True)
-        if st.button("REPLAY INTRO"):
-            st.session_state.view_mode = "intro"
+        st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+        if st.button("REWATCH INTRO"):
+            st.session_state.view = "intro"
             st.rerun()
         st.write("**DEVELOPER:** Helly")
-        st.write("**ENGINE:** NPCL V2.0")
 
-    # Main Chat View
     st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
+    # Logic Engine
     def get_response(user_input):
         processed_input = preprocess_text(user_input)
         corpus = df['question'].apply(preprocess_text).tolist()
@@ -158,28 +157,28 @@ else:
     if 'history' not in st.session_state:
         st.session_state.history = []
 
-    # Question Buttons
+    # Frequency Buttons
     st.markdown("### 📡 ACTIVE FREQUENCIES")
     questions_list = df['question'].tolist()
     cols = st.columns(3)
     clicked_q = None
     for i, q in enumerate(questions_list):
-        if cols[i % 3].button(q, key=f"q_{i}"):
+        if cols[i % 3].button(q, key=f"btn_{i}"):
             clicked_q = q
 
-    # Input Form
+    # Chat Input
     with st.form(key='chat_form', clear_on_submit=True):
-        u_input = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
+        u_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
         submit = st.form_submit_button("TRANSMIT")
 
-    final_q = clicked_q if clicked_q else (u_input if submit else None)
+    final_q = clicked_q if clicked_q else (u_query if submit else None)
 
     if final_q:
         ans = get_response(final_q)
         st.session_state.history.append({"q": final_q, "a": ans})
         st.rerun()
 
-    # Chat History Cards
+    # History Display
     for item in reversed(st.session_state.history):
         st.markdown(f'''
         <div class="chat-card">
