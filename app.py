@@ -11,9 +11,18 @@ from nltk.stem import WordNetLemmatizer
 # --- 1. NLP SETUP ---
 @st.cache_resource
 def setup_nlp():
-    nltk.download('punkt')
-    nltk.download('wordnet')
-    nltk.download('punkt_tab')
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        nltk.download('punkt')
+    try:
+        nltk.data.find('corpora/wordnet')
+    except LookupError:
+        nltk.download('wordnet')
+    try:
+        nltk.data.find('tokenizers/punkt_tab')
+    except LookupError:
+        nltk.download('punkt_tab')
 
 setup_nlp()
 lemmatizer = WordNetLemmatizer()
@@ -41,15 +50,15 @@ def load_data():
         with open('faqs.json', 'r') as f:
             data = json.load(f)
         return pd.DataFrame(data)
-    except:
-        # FIXED: Removed 'spell' from the line below
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json."]})
+    except Exception:
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check for a 'faqs.json' file in the same directory."]})
 
 df = load_data()
 
-# --- 4. THE VOXA REPLICA UI ---
-st.set_page_config(page_title="Nova Chatterix", layout="wide")
+# --- 4. THE NOVO CHATTERIX UI & BACKGROUND FIX ---
+st.set_page_config(page_title="Novo Chatterix", layout="wide")
 
+# CSS TO ACHIEVE THE 'MIXED GRADIENT' FROM THE IMAGE
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
@@ -58,12 +67,14 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: TOP (BLUE) TO BOTTOM (PURPLE) MIX */
+    /* THE RECREATED BACKGROUND: Pure Black with blended radial glows */
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            linear-gradient(180deg, rgba(0, 229, 255, 0.4) 0%, rgba(180, 82, 255, 0.4) 100%) !important;
+            radial-gradient(circle at 10% 40%, rgba(0, 229, 255, 0.4) 0%, transparent 40%),  /* Upper-left Light Blue Glow */
+            radial-gradient(circle at 90% 60%, rgba(180, 82, 255, 0.4) 0%, transparent 40%) !important; /* Lower-right Purple Glow */
         background-attachment: fixed !important;
+        background-size: cover;
         color: #ffffff;
     }
     
@@ -141,8 +152,8 @@ st.markdown("""
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
     dev_query = user_input.lower()
-    if any(x in dev_query for x in ["developed", "creator", "who made"]):
-        return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
+    if any(x in dev_query for x in ["developed", "creator", "who made", "built by"]):
+        return "This system, 'Novo Chatterix', was developed as a full technical demonstration of advanced Natural Language Processing and professional UI integration."
         
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
@@ -153,36 +164,41 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch. Data not found in current frequency."
+    return "Neutral Signal Mismatch. Required data not found in current semantic frequency."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
     st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-    if st.button("CLEAR CACHE"):
+    if st.button("CLEAR ACTIVE CACHE"):
         st.session_state.history = []
         st.rerun()
     
     st.markdown("---")
-    st.markdown('<p class="sidebar-label">CREDENTIALS</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
     st.write("**DEVELOPER:** Helly Shah")
-    st.write("**ENGINE:** NPCL V2.0")
+    st.write("**NLP ENGINE:** TF-IDF Cosine Similarity v2.1")
+    st.write("**UI ENGINE:** NPCL V2.0")
     
     st.markdown("---")
-    st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
+# Gradient Header Recreating "VOXA" style for "NOVO CHATTERIX"
+st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
+# Central Lottie Robot/Element
 if lottie_main:
     col_rob, _ = st.columns([1, 4])
     with col_rob:
         st_lottie(lottie_main, height=150, key="main_robot")
 
+# Session State History Initialize
 if 'history' not in st.session_state:
     st.session_state.history = []
 
+# Dynamic FAQ Buttons Section
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
@@ -192,21 +208,28 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
+# Chat Input Form Section
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
+    user_query = st.text_input("Transmit Command:", placeholder="AWAITING NEURAL SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
+# Logic Handling Clicked Buttons vs. Typed Input
 final_query = clicked_q if clicked_q else (user_query if submit else None)
 
 if final_query:
-    ans = get_response(final_query)
+    # Process and get response
+    with st.spinner("Processing Semantic Vector..."):
+        ans = get_response(final_query)
+    # Append to history
     st.session_state.history.append({"q": final_query, "a": ans})
+    # Rerun to clear input and update history view
     st.rerun()
 
+# History Display Section (Reversed)
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
-        <b style="color:#b452ff">NOVA:</b> {item["a"]}
+        <b style="color:#00e5ff">INCOMING SIGNAL:</b> {item["q"]}<br><br>
+        <b style="color:#b452ff">NOVO RESPONSE:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
