@@ -98,7 +98,7 @@ with st.sidebar:
     st.title("📂 Project Details")
     st.markdown("---")
     st.write("**Framework:** MASF AI")
-    st.write("**Developer:** Shrutika")
+    st.write("**Developer:** Helly")
     st.markdown("---")
     st.markdown('<div class="status-box">SYSTEM: ONLINE</div>', unsafe_allow_html=True)
     st.markdown('<div class="status-box" style="margin-top:10px">ENGINE: TF-IDF V2</div>', unsafe_allow_html=True)
