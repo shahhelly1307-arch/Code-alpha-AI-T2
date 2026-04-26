@@ -17,7 +17,7 @@ if 'intro_done' not in st.session_state:
 if not st.session_state.intro_done:
     st.set_page_config(page_title="Nova Chatterix", layout="wide")
     
-    # This is your exact HTML code provided
+    # Updated Nova Brand Font Size to be bigger (from 1.3rem to 2.5rem)
     intro_html = """
     <!DOCTYPE html>
     <html lang="en">
@@ -67,7 +67,7 @@ if not st.session_state.intro_done:
             }
             .nova-brand {
                 margin-top: -80px;
-                font-size: 1.3rem;
+                font-size: 2.5rem;
                 letter-spacing: 12px;
                 text-transform: uppercase;
                 background: linear-gradient(to bottom, #ffffff, #5ce1ff);
@@ -186,8 +186,8 @@ else:
             return None
 
     lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
-    # Floating Robot for Sidebar
-    lottie_sidebar = load_lottieurl("https://lottie.host/61348a27-a006-4448-844c-20387b324d27/45pG67oR5U.json")
+    # Updated Robot Link for higher reliability
+    lottie_sidebar = load_lottieurl("https://assets1.lottiefiles.com/packages/lf20_at6m9vsc.json")
 
     # --- 5. DATA LOADING ---
     @st.cache_data
@@ -322,12 +322,16 @@ else:
 
     # --- 8. SIDEBAR ---
     with st.sidebar:
-        # ADDED ANIMATED ROBOT HERE
+        # ANIMATED ROBOT ABOVE SETTINGS
         if lottie_sidebar:
             st_lottie(lottie_sidebar, height=180, key="sidebar_robot")
+        else:
+            # Fallback text if network fails
+            st.markdown("🤖 **SIGNAL ACTIVE**")
             
         st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-        if st.button("CLEAR ACTIVE CACHE"):
+        # Button text changed to CLEAR CACHE
+        if st.button("CLEAR CACHE"):
             st.session_state.history = []
             st.rerun()
         
