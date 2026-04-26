@@ -43,8 +43,8 @@ def load_data():
         return pd.DataFrame(data)
     except:
         return pd.DataFrame({
-            "question": ["Who developed this interface?", "System Status"], 
-            "answer": ["This interface was developed by Helly Shah.", "Database signal active."]
+            "question": ["System Status"], 
+            "answer": ["Database signal active."]
         })
 
 df = load_data()
@@ -65,7 +65,6 @@ st.markdown("""
         color: #ffffff;
     }
     
-    /* SINGLE LINE MASSIVE HEADER */
     .voxa-header {
         font-family: 'VT323', monospace !important;
         font-size: clamp(3.5rem, 9vw, 10rem) !important; 
@@ -77,9 +76,7 @@ st.markdown("""
         letter-spacing: -2px;
         margin-top: 10px;
         margin-bottom: 5px;
-        text-shadow: 
-            5px 5px 0px #004d4d,
-            0 0 45px rgba(0, 229, 255, 0.6);
+        text-shadow: 5px 5px 0px #004d4d, 0 0 45px rgba(0, 229, 255, 0.6);
     }
 
     .orbital-line {
@@ -90,23 +87,29 @@ st.markdown("""
         box-shadow: 0 0 15px #00e5ff;
     }
 
+    /* Left Sidebar Styling for NPCL and Status */
+    [data-testid="stSidebar"] {
+        background-color: #000000 !important;
+        border-right: 1px solid #00e5ff;
+    }
+
+    .sidebar-label {
+        color: #00e5ff;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
     }
     
-    div.stButton > button:hover {
-        background: #00e5ff !important;
-        color: #000 !important;
-        box-shadow: 0 0 20px #00e5ff;
-    }
-
     .stTextInput input {
         background-color: rgba(0, 0, 0, 0.8) !important;
         border: 2px solid #00e5ff !important;
         color: #ffffff !important;
-        font-size: 1.4rem !important;
     }
 
     .chat-card {
@@ -120,9 +123,10 @@ st.markdown("""
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
-    # Direct credit to Helly Shah
-    if "developed" in user_input.lower() or "creator" in user_input.lower() or "who made this" in user_input.lower():
-        return "This interface was developed by Helly Shah."
+    # YOUR REQUESTED FULL ANSWER
+    dev_keywords = ["developed", "creator", "who made", "owner"]
+    if any(word in user_input.lower() for word in dev_keywords):
+        return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
         
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
@@ -135,17 +139,25 @@ def get_response(user_input):
         return df.iloc[idx]['answer']
     return "Neural Signal Mismatch. Data not found."
 
-# --- 6. SIDEBAR ---
+# --- 6. SIDEBAR (NPCL & STATUS) ---
 with st.sidebar:
-    st.title("SETTINGS")
+    st.markdown('<p class="sidebar-label">SETTINGS</p>', unsafe_allow_html=True)
     if st.button("CLEAR HISTORY"):
         st.session_state.history = []
         st.rerun()
-    st.write("**Developer:** Helly Shah")
+    
+    st.markdown("---")
+    # Added NPCL and Professional Details on the Left
+    st.markdown('<p class="sidebar-label">DEVELOPER INFO</p>', unsafe_allow_html=True)
+    st.write("**LEAD:** Helly Shah")
+    st.write("**CORE:** NPCL ENGINE V2")
+    st.write("**TYPE:** UI INTEGRATION")
+    
+    st.markdown("---")
     st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff;">● SIGNAL: STABLE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# FIXED: changed unsafe_allow_header to unsafe_allow_html
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
