@@ -186,6 +186,8 @@ else:
             return None
 
     lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
+    # Floating Robot for Sidebar
+    lottie_sidebar = load_lottieurl("https://lottie.host/61348a27-a006-4448-844c-20387b324d27/45pG67oR5U.json")
 
     # --- 5. DATA LOADING ---
     @st.cache_data
@@ -320,6 +322,10 @@ else:
 
     # --- 8. SIDEBAR ---
     with st.sidebar:
+        # ADDED ANIMATED ROBOT HERE
+        if lottie_sidebar:
+            st_lottie(lottie_sidebar, height=180, key="sidebar_robot")
+            
         st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
         if st.button("CLEAR ACTIVE CACHE"):
             st.session_state.history = []
