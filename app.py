@@ -13,7 +13,7 @@ from nltk.stem import WordNetLemmatizer
 if 'intro_done' not in st.session_state:
     st.session_state.intro_done = False
 
-# --- 2. INTRO PAGE (HTML/CSS + VOICE + SMOOTH TRANSITION) ---
+# --- 2. INTRO PAGE (HTML/CSS + FEMALE VOICE) ---
 if not st.session_state.intro_done:
     st.set_page_config(page_title="Nova Chatterix", layout="wide")
     
@@ -35,11 +35,7 @@ if not st.session_state.intro_done:
                 align-items: center;
                 font-family: 'Silkscreen', cursive;
                 overflow: hidden;
-                transition: opacity 1.5s ease-in-out, filter 1.5s ease-in-out;
-            }
-            .fade-out {
-                opacity: 0;
-                filter: blur(15px) brightness(1.5);
+                color: white;
             }
             .container {
                 display: flex;
@@ -72,23 +68,26 @@ if not st.session_state.intro_done:
                 -webkit-text-fill-color: transparent;
                 opacity: 0.9;
             }
-            .init-btn {
+            .init-button {
                 margin-top: 30px;
-                padding: 12px 30px;
-                background: transparent;
-                border: 2px solid #5ce1ff;
-                color: #5ce1ff;
+                padding: 15px 40px;
                 font-family: 'Silkscreen', cursive;
+                background: transparent;
+                color: #5ce1ff;
+                border: 2px solid #5ce1ff;
+                border-radius: 50px;
                 cursor: pointer;
-                border-radius: 5px;
-                z-index: 20;
+                font-size: 1.2rem;
                 transition: 0.3s;
+                z-index: 20;
+                box-shadow: 0 0 15px rgba(92, 225, 255, 0.2);
             }
-            .init-btn:hover {
+            .init-button:hover {
                 background: #5ce1ff;
                 color: #01050a;
-                box-shadow: 0 0 20px #5ce1ff;
+                box-shadow: 0 0 30px #5ce1ff;
             }
+
             @keyframes hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-25px); } }
             @keyframes bigWave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-25deg) scale(1.1); } }
             @keyframes eyeMovement { 0%, 10%, 100% { transform: translate(0, 0); } 20%, 40% { transform: translate(3px, -1px); } 50%, 70% { transform: translate(-3px, 1px); } 80% { transform: translate(0, -2px); } }
@@ -124,34 +123,44 @@ if not st.session_state.intro_done:
             <defs><linearGradient id="arcGrad"><stop offset="0%" stop-color="transparent"/><stop offset="50%" stop-color="#5ce1ff"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
         </svg>
         <h1 class="nova-brand">Nova Chatterix</h1>
-        <button class="init-btn" onclick="startSequence()">CONNECT INTERFACE</button>
+        <button class="init-button" onclick="initializeSystem()">INITIALIZE SYSTEM</button>
     </div>
 
     <script>
-        function startSequence() {
-            // 1. Voice Greeting (Soft Female)
+        function initializeSystem() {
             if ('speechSynthesis' in window) {
                 const msg = new SpeechSynthesisUtterance();
-                msg.text = "Hello Chatterix. System is now online.";
-                msg.volume = 1; msg.rate = 0.85; msg.pitch = 1.2;
+                msg.text = "Hello Chatterix";
+                msg.volume = 1;
+                msg.rate = 0.85; // Slightly slower for "sweetness"
+                msg.pitch = 1.2;  // Slightly higher for female tone
+                
                 let voices = window.speechSynthesis.getVoices();
-                let femaleVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Google UK English Female') || v.name.includes('Samantha'));
-                if (femaleVoice) msg.voice = femaleVoice;
+                // Priority list for soft/female voices
+                let targetVoice = voices.find(v => v.name.includes('Google UK English Female') || 
+                                                  v.name.includes('Samantha') || 
+                                                  v.name.includes('Zira') || 
+                                                  v.name.includes('Female'));
+                
+                if (targetVoice) msg.voice = targetVoice;
                 window.speechSynthesis.speak(msg);
             }
-            
-            // 2. Smooth Radiation Fade Out
+            // Give time for the voice to finish before redirecting
             setTimeout(() => {
-                document.body.classList.add('fade-out');
-            }, 1000);
+                document.body.style.opacity = '0';
+                document.body.style.transition = 'opacity 1s';
+            }, 1500);
         }
+
+        // Force voice load for Chrome/Edge
+        window.speechSynthesis.getVoices();
     </script>
     </body>
     </html>
     """
     
     st.components.v1.html(intro_html, height=800)
-    # Give user time to click, hear the voice, and see the fade
+    # Give user time to click the button and hear the voice
     time.sleep(4.5) 
     st.session_state.intro_done = True
     st.rerun()
@@ -160,12 +169,18 @@ else:
     # --- 3. NLP SETUP ---
     @st.cache_resource
     def setup_nlp():
-        try: nltk.data.find('tokenizers/punkt'); 
-        except: nltk.download('punkt')
-        try: nltk.data.find('corpora/wordnet'); 
-        except: nltk.download('wordnet')
-        try: nltk.data.find('tokenizers/punkt_tab'); 
-        except: nltk.download('punkt_tab')
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt')
+        try:
+            nltk.data.find('corpora/wordnet')
+        except LookupError:
+            nltk.download('wordnet')
+        try:
+            nltk.data.find('tokenizers/punkt_tab')
+        except LookupError:
+            nltk.download('punkt_tab')
 
     setup_nlp()
     lemmatizer = WordNetLemmatizer()
@@ -178,8 +193,9 @@ else:
     def load_lottieurl(url: str):
         try:
             r = requests.get(url, timeout=10)
-            return r.json() if r.status_code == 200 else None
-        except: return None
+            if r.status_code != 200: return None
+            return r.json()
+        except Exception: return None
 
     lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
@@ -187,32 +203,55 @@ else:
     @st.cache_data
     def load_data():
         try:
-            with open('faqs.json', 'r') as f: data = json.load(f)
+            with open('faqs.json', 'r') as f:
+                data = json.load(f)
             return pd.DataFrame(data)
-        except:
-            return pd.DataFrame({"question": ["Status", "Who"], "answer": ["Active", "I am NOVA."] })
+        except Exception:
+            return pd.DataFrame({
+                "question": ["System Status", "Identity Check"], 
+                "answer": ["Database signal active. Please check faqs.json.", "I am NOVA, your neural interface."]
+            })
 
     df = load_data()
 
     # --- 6. THE NOVA CHATTERIX UI ---
+    st.set_page_config(page_title="Nova Chatterix", layout="wide")
+
     st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
         html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label { font-family: 'Silkscreen', cursive !important; }
         .stApp {
             background-color: #050505 !important; 
-            background-image: radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.2) 0%, transparent 60%), radial-gradient(circle at 100% 100%, rgba(180, 82, 255, 0.2) 0%, transparent 60%), linear-gradient(135deg, #001214 0%, #11001c 100%) !important;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(0, 229, 255, 0.2) 0%, transparent 60%), 
+                radial-gradient(circle at 100% 100%, rgba(180, 82, 255, 0.2) 0%, transparent 60%),
+                linear-gradient(135deg, #001214 0%, #11001c 100%) !important;
             background-attachment: fixed !important;
+            background-size: cover;
             color: #ffffff;
         }
-        .voxa-header { font-size: clamp(2.5rem, 6vw, 8rem) !important; background: linear-gradient(to right, #00e5ff, #b452ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; text-transform: uppercase; letter-spacing: -3px; margin-top: 10px; filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4)); }
+        .voxa-header {
+            font-size: clamp(2.5rem, 6vw, 8rem) !important; font-weight: 700 !important;
+            background: linear-gradient(to right, #00e5ff, #b452ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; text-transform: uppercase; white-space: nowrap; 
+            letter-spacing: -3px; margin-top: 10px; margin-bottom: 0px;
+            filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
+        }
         .orbital-line { height: 3px; background: linear-gradient(90deg, transparent, #00e5ff, transparent); width: 80%; margin: 0 auto 40px auto; box-shadow: 0 0 15px #00e5ff; }
         [data-testid="stSidebar"] { background-color: rgba(0, 0, 0, 0.8) !important; border-right: 1px solid rgba(0, 229, 255, 0.3); }
-        div.stButton > button { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border: 1px solid rgba(0, 229, 255, 0.5) !important; border-radius: 50px !important; transition: 0.3s; padding: 10px 20px; }
+        .sidebar-label { color: #00e5ff; font-size: 0.9rem; letter-spacing: 2px; font-weight: bold; }
+        div.stButton > button { background: rgba(255, 255, 255, 0.05) !important; color: #ffffff !important; border: 1px solid rgba(0, 229, 255, 0.5) !important; border-radius: 50px !important; font-size: 0.85rem !important; transition: 0.3s; padding: 10px 20px; }
         div.stButton > button:hover { background: rgba(0, 229, 255, 0.2) !important; box-shadow: 0 0 20px rgba(0, 229, 255, 0.4); border: 1px solid #00e5ff !important; }
-        .chat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 229, 255, 0.2); border-left: 5px solid #00e5ff; padding: 20px; margin-bottom: 15px; border-radius: 4px; }
-        .sidebar-robot-container { animation: sideHover 4s ease-in-out infinite; display: flex; justify-content: center; }
+        .stTextInput input { background-color: rgba(20, 20, 20, 0.7) !important; border: 1px solid rgba(0, 229, 255, 0.5) !important; color: #ffffff !important; border-radius: 10px !important; }
+        .chat-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 229, 255, 0.2); border-left: 5px solid #00e5ff; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); border-radius: 4px; }
         @keyframes sideHover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes sideBlink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
+        @keyframes sideEye { 0%, 10%, 100% { transform: translate(0, 0); } 20%, 40% { transform: translate(2px, -1px); } 50%, 70% { transform: translate(-2px, 1px); } }
+        .sidebar-robot-container { animation: sideHover 4s ease-in-out infinite; display: flex; justify-content: center; margin-bottom: 10px; }
+        .side-eye-lid { transform-origin: center; animation: sideBlink 4s ease-in-out infinite; }
+        .side-eye-pupil { animation: sideEye 6s ease-in-out infinite; }
         </style>
         """, unsafe_allow_html=True)
 
@@ -221,29 +260,50 @@ else:
         dev_query = user_input.lower()
         if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
             return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
+        if "nova" in dev_query and "who are you" in dev_query:
+            return "I am NOVA, a high-frequency neural interface designed for rapid data retrieval."
         processed_input = preprocess_text(user_input)
         corpus = df['question'].apply(preprocess_text).tolist()
-        vectorizer = TfidfVectorizer(); tfidf_matrix = vectorizer.fit_transform(corpus)
+        vectorizer = TfidfVectorizer()
+        tfidf_matrix = vectorizer.fit_transform(corpus)
         user_vec = vectorizer.transform([processed_input])
         similarity_scores = cosine_similarity(user_vec, tfidf_matrix)
         idx = similarity_scores.argmax()
-        return df.iloc[idx]['answer'] if similarity_scores[0][idx] > 0.2 else "Neural Signal Mismatch. Data not found."
+        if similarity_scores[0][idx] > 0.2: return df.iloc[idx]['answer']
+        return "Neural Signal Mismatch. Data not found in current frequency."
 
     # --- 8. SIDEBAR ---
     with st.sidebar:
-        st.markdown('<div class="sidebar-robot-container"><svg width="120" height="120" viewBox="0 0 200 200"><rect x="65" y="75" width="70" height="42" rx="21" fill="#0c121d" stroke="#5ce1ff" stroke-width="1" /><circle cx="82" cy="95" r="5" fill="white" /><circle cx="118" cy="95" r="5" fill="white" /></svg></div>', unsafe_allow_html=True)
-        st.markdown('**INTERFACE SETTINGS**')
-        if st.button("CLEAR CACHE"): st.session_state.history = []; st.rerun()
+        st.markdown("""
+        <div class="sidebar-robot-container">
+            <svg width="150" height="150" viewBox="0 0 200 200">
+                <defs><linearGradient id="bodyGradSide" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#b85cff" /><stop offset="60%" stop-color="#7a7aff" /><stop offset="100%" stop-color="#5ce1ff" /></linearGradient></defs>
+                <circle cx="100" cy="35" r="4" fill="#b85cff" /><rect x="98" y="38" width="4" height="12" fill="#b85cff" />
+                <path d="M55 85 C 55 40, 145 40, 145 85 C 145 130, 125 170, 100 170 C 75 170, 55 130, 55 85" fill="url(#bodyGradSide)" stroke="white" stroke-width="0.5" />
+                <rect x="65" y="75" width="70" height="42" rx="21" fill="#0c121d" stroke="#5ce1ff" stroke-width="1" />
+                <g class="side-eye-lid"><circle cx="82" cy="95" r="8" fill="white" /><circle class="side-eye-pupil" cx="82" cy="95" r="3.5" fill="#0c121d" /><circle cx="118" cy="95" r="8" fill="white" /><circle class="side-eye-pupil" cx="118" cy="95" r="3.5" fill="#0c121d" /></g>
+                <path d="M92 122 Q100 128 108 122" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
+            </svg>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
+        if st.button("CLEAR CACHE"):
+            st.session_state.history = []
+            st.rerun()
         st.markdown("---")
+        st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
         st.write("**DEVELOPER:** Helly")
         st.write("**ENGINE:** NOVA-V2")
+        st.markdown("---")
 
     # --- 9. MAIN INTERFACE ---
     st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
+    if lottie_main:
+        col_rob, _ = st.columns([1, 4])
+        with col_rob: st_lottie(lottie_main, height=150, key="main_robot")
 
     if 'history' not in st.session_state: st.session_state.history = []
-
     st.markdown("### 📡 ACTIVE FREQUENCIES")
     questions_list = df['question'].tolist()
     cols = st.columns(3)
@@ -262,4 +322,4 @@ else:
         st.rerun()
 
     for item in st.session_state.history:
-        st.markdown(f'<div class="chat-card"><b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br><b style="color:#b452ff">NOVA:</b> {item["a"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'''<div class="chat-card"><b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br><b style="color:#b452ff">NOVA:</b> {item["a"]}</div>''', unsafe_allow_html=True)
