@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd  # Fixed the typo here
+import pandas as pd 
 import json
 import nltk
 import requests
@@ -43,93 +43,97 @@ def load_data():
         return pd.DataFrame(data)
     except:
         return pd.DataFrame({
-            "question": ["System Status", "Who made this?", "Capabilities"], 
-            "answer": ["Database signal active.", "Developed by Helly.", "Neural NLP processing active."]
+            "question": ["What is Nova AI?", "Who developed this interface?", "How does the matching engine work?", "What parameters define TF-IDF V2?", "What is the MASF Framework?", "Is this system real-time?"], 
+            "answer": ["Nova AI is a neural-synapse chatbot.", "Developed by Helly Shah.", "It uses Cosine Similarity and TF-IDF vectors.", "Frequency and Inverse Document Frequency.", "Multi-Agent System Framework.", "Yes, signal processing is instantaneous."]
         })
 
 df = load_data()
 
-# --- 4. THE VOXA-STYLE UI ---
+# --- 4. THE VOXA UI (REFINED GLOW) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
-    html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
+    /* Apply font to everything */
+    * {
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* THE VOXA BACKGROUND: TRUE BLACK WITH SIDE GLOWS */
+    /* THE FIX: Apply background to the very base of the app */
     .stApp {
-        background-color: #000000 !important;
-        background-image: 
-            /* Left side Cyan glow */
-            radial-gradient(circle at -5% 50%, rgba(0, 229, 255, 0.25) 0%, transparent 45%),
-            /* Right side Purple glow */
-            radial-gradient(circle at 105% 50%, rgba(180, 82, 255, 0.2) 0%, transparent 45%) !important;
-        background-attachment: fixed !important;
-        color: #ffffff;
+        background: #000000 !important;
     }
-    
+
+    /* Create the Side Glows using a fixed overlay so it doesn't disappear */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: 
+            radial-gradient(circle at 2% 50%, rgba(0, 229, 255, 0.3) 0%, transparent 40%),
+            radial-gradient(circle at 98% 50%, rgba(180, 82, 255, 0.25) 0%, transparent 40%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Ensure content stays above the glow */
+    .main .block-container {
+        z-index: 1;
+        position: relative;
+    }
+
+    /* HEADER STYLING */
     .voxa-header {
-        font-family: 'Silkscreen', cursive !important;
-        font-size: clamp(2.5rem, 6vw, 8rem) !important; 
+        font-size: clamp(2.5rem, 6vw, 6rem) !important; 
         font-weight: 700 !important;
         background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
         text-transform: uppercase;
-        white-space: nowrap; 
-        letter-spacing: -3px;
-        margin-top: 10px;
         margin-bottom: 0px;
-        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
+        filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
     }
 
     .orbital-line {
         height: 2px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-        width: 80%;
-        margin: 0 auto 40px auto;
-        opacity: 0.6;
+        width: 70%;
+        margin: 0 auto 30px auto;
     }
 
-    [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.8) !important;
-        border-right: 1px solid rgba(0, 229, 255, 0.3);
-    }
-
+    /* BUTTONS: Made them sharper neon blue */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
-        border: 1px solid #00e5ff !important;
+        border: 2px solid #00e5ff !important;
         border-radius: 4px !important;
-        font-size: 0.8rem !important;
         transition: 0.3s;
         width: 100%;
     }
 
     div.stButton > button:hover {
         background: rgba(0, 229, 255, 0.2) !important;
-        box-shadow: 0 0 15px #00e5ff;
+        box-shadow: 0 0 20px #00e5ff;
         color: #fff !important;
     }
-    
+
+    /* INPUT FIELD */
     .stTextInput input {
-        background-color: rgba(15, 15, 15, 0.9) !important;
-        border: 1px solid #00e5ff !important;
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        border: 2px solid #00e5ff !important;
         color: #ffffff !important;
-        border-radius: 4px;
     }
 
+    /* CHAT CARD */
     .chat-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(0, 229, 255, 0.2);
-        border-left: 4px solid #00e5ff;
-        padding: 20px;
-        margin-bottom: 15px;
+        background: rgba(10, 10, 10, 0.6);
+        border: 1px solid rgba(0, 229, 255, 0.3);
+        border-left: 5px solid #00e5ff;
+        padding: 15px;
+        margin-bottom: 10px;
         backdrop-filter: blur(10px);
     }
     </style>
@@ -137,10 +141,6 @@ st.markdown("""
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
-    dev_query = user_input.lower()
-    if any(x in dev_query for x in ["developed", "creator", "who made"]):
-        return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
-        
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -150,41 +150,25 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch. Data not found in current frequency."
+    return "Neural Signal Mismatch. Data not found."
 
-# --- 6. SIDEBAR ---
-with st.sidebar:
-    st.markdown('<p style="color:#00e5ff; font-weight:bold;">SYSTEM SETTINGS</p>', unsafe_allow_html=True)
-    if st.button("RESET INTERFACE"):
-        st.session_state.history = []
-        st.rerun()
-    
-    st.markdown("---")
-    st.write("**DEV:** Helly Shah")
-    st.write("**CORE:** NPCL V2.0")
-    st.markdown('<p style="color:#00e5ff;">● ONLINE</p>', unsafe_allow_html=True)
-
-# --- 7. MAIN INTERFACE ---
+# --- 6. INTERFACE ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
-
-if lottie_main:
-    col_rob, _ = st.columns([1, 5])
-    with col_rob:
-        st_lottie(lottie_main, height=120, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
 st.markdown("### 📡 ACTIVE FREQUENCIES")
-questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
 
-for i, q in enumerate(questions_list[:6]):
+# Grid of buttons
+for i, q in enumerate(df['question'].tolist()):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
+# Text Input
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -196,10 +180,11 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
+# Display Chat
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <span style="color:#00e5ff; font-weight:bold;">SIGNAL:</span> {item["q"]}<br><br>
-        <span style="color:#b452ff; font-weight:bold;">NOVA:</span> {item["a"]}
+        <span style="color:#00e5ff">SIGNAL:</span> {item["q"]}<br>
+        <span style="color:#b452ff">NOVA:</span> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
