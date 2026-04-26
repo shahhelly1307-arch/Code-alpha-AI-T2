@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import nltk
 import requests
+import time
 from streamlit_lottie import st_lottie
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -41,7 +42,6 @@ def load_lottieurl(url: str):
     except Exception:
         return None
 
-# High-quality floating robot animation
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
@@ -56,124 +56,109 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE NOVO CHATTERIX UI ---
+# --- 4. THE NOVO CHATTERIX UI & ANIMATION ---
 st.set_page_config(page_title="Novo Chatterix", layout="wide")
+
+# Initialize session state for the splash screen
+if 'visited' not in st.session_state:
+    st.session_state.visited = False
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Silkscreen:wght@700&display=swap');
     
-    /* Global Styles */
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
-        font-family: 'Inter', sans-serif !important;
+        font-family: 'Silkscreen', cursive !important;
     }
 
+    /* SHARED BACKGROUND */
     .stApp {
         background-color: #020205 !important; 
         background-image: 
             radial-gradient(circle at 20% 30%, rgba(0, 229, 255, 0.15) 0%, transparent 50%), 
-            radial-gradient(circle at 80% 70%, rgba(180, 82, 255, 0.15) 0%, transparent 50%) !important;
+            radial-gradient(circle at 80% 70%, rgba(180, 82, 255, 0.15) 0%, transparent 50%),
+            linear-gradient(135deg, #001214 0%, #11001c 100%) !important;
         background-attachment: fixed !important;
     }
 
-    /* Hero Section Container */
+    /* HERO / SPLASH STYLING */
     .hero-container {
         text-align: center;
-        padding-top: 50px;
+        padding-top: 80px;
         position: relative;
     }
 
-    /* The Half Circle / Arch Glow */
     .arch-glow {
         position: absolute;
-        width: 800px;
-        height: 400px;
-        border: 2px solid rgba(0, 229, 255, 0.3);
+        width: 700px;
+        height: 350px;
+        border: 3px solid rgba(0, 229, 255, 0.4);
         border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-        bottom: -50px;
+        bottom: -20px;
         left: 50%;
         transform: translateX(-50%);
         background: radial-gradient(circle at 50% 100%, rgba(0, 229, 255, 0.1), transparent 70%);
-        box-shadow: 0 -10px 50px rgba(0, 229, 255, 0.1);
-        z-index: 0;
+        box-shadow: 0 -10px 40px rgba(0, 229, 255, 0.2);
     }
 
-    /* Bot Name Styling from Image */
-    .bot-title {
-        font-size: 4rem;
-        font-weight: 700;
-        color: #FFFFFF;
-        margin-bottom: 0px;
-        position: relative;
-        z-index: 1;
-        letter-spacing: -1px;
-    }
-
-    .bot-subtitle {
-        font-size: 2.5rem;
+    .hero-title {
+        font-size: 5rem;
         font-weight: 700;
         background: linear-gradient(90deg, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-top: -10px;
-        position: relative;
-        z-index: 1;
+        margin-top: 20px;
     }
 
-    /* Custom Buttons */
-    div.stButton > button {
-        background: linear-gradient(90deg, #00e5ff, #b452ff) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 50px !important;
-        padding: 12px 35px !important;
-        font-weight: 600 !important;
-        transition: 0.3s ease;
-    }
-
-    div.stButton > button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
-    }
-
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: rgba(2, 2, 5, 0.9) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
+    /* CHAT CARD STYLING */
     .chat-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-left: 5px solid #00e5ff;
         padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 10px;
-        backdrop-filter: blur(5px);
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+        border-radius: 4px;
+    }
+    
+    .stTextInput input {
+        background-color: rgba(20, 20, 20, 0.7) !important;
+        border: 1px solid rgba(0, 229, 255, 0.5) !important;
+        color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. HERO SECTION ---
-st.markdown("""
-    <div class="hero-container">
-        <div class="arch-glow"></div>
-        <h1 class="bot-title">The Future of</h1>
-        <h2 class="bot-subtitle">Nova Chatterix</h2>
-    </div>
-    """, unsafe_allow_html=True)
+# --- 5. SPLASH SCREEN LOGIC ---
+placeholder = st.empty()
 
-# Animated Robot (Lottie) placed centrally in the "arch"
-col_l, col_c, col_r = st.columns([1, 2, 1])
-with col_c:
-    if lottie_main:
-        st_lottie(lottie_main, height=300, key="hero_robot")
+if not st.session_state.visited:
+    with placeholder.container():
+        st.markdown("""
+            <div class="hero-container">
+                <div class="arch-glow"></div>
+                <h1 class="hero-title">NOVA CHATTERIX</h1>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Central Animated Robot
+        _, col_c, _ = st.columns([1, 2, 1])
+        with col_c:
+            if lottie_main:
+                st_lottie(lottie_main, height=400, key="splash_robot")
+        
+        st.markdown("<h3 style='text-align:center; color:#00e5ff; opacity:0.6;'>INITIALIZING NEURAL LINK...</h3>", unsafe_allow_html=True)
+        
+        time.sleep(5)  # The 5-second delay
+        st.session_state.visited = True
+        st.rerun()
 
-# --- 6. LOGIC ENGINE ---
+# --- 6. MAIN CHATBOT INTERFACE (LOADS AFTER 5 SECS) ---
 def get_response(user_input):
     dev_query = user_input.lower()
     if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
         return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
-    
+        
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -185,21 +170,24 @@ def get_response(user_input):
         return df.iloc[idx]['answer']
     return "Neural Signal Mismatch. Data not found in current frequency."
 
-# --- 7. SIDEBAR ---
 with st.sidebar:
-    st.markdown("### SYSTEM SETTINGS")
-    if st.button("RESET SESSION"):
+    st.markdown("### SYSTEM CONTROLS")
+    if st.button("RESET INTERFACE"):
         st.session_state.history = []
+        st.session_state.visited = False # Go back to splash
         st.rerun()
-    st.write("**DEVELOPER:** Helly")
-    st.write("**STATUS:** 🟢 ONLINE")
+    st.write("**ENGINE:** NPCL V2.0")
+    st.write("**STATUS:** 🟢 ACTIVE")
 
-# --- 8. CHAT INTERFACE ---
+# Header for Chat Page
+st.markdown("<h1 style='text-align:center; color:#00e5ff; letter-spacing: -2px;'>NOVA CHATTERIX</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(0, 229, 255, 0.2);'>", unsafe_allow_html=True)
+
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Quick Frequency Buttons
-st.markdown("<br>", unsafe_allow_html=True)
+# Quick Questions
+st.markdown("### 📡 FREQUENCY SELECT")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
@@ -208,10 +196,10 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Chat Input
+# Input Form
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("", placeholder="Ask Nova anything...")
-    submit = st.form_submit_button("SEND COMMAND")
+    user_query = st.text_input("Transmit Command:", placeholder="Awaiting Signal...")
+    submit = st.form_submit_button("TRANSMIT")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
 
@@ -220,11 +208,11 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# Display History
+# Chat Logs
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#00e5ff">USER:</b> {item["q"]}<br><br>
+        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
         <b style="color:#b452ff">NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
