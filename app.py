@@ -13,7 +13,7 @@ from nltk.stem import WordNetLemmatizer
 if 'intro_done' not in st.session_state:
     st.session_state.intro_done = False
 
-# --- 2. INTRO PAGE (HTML/CSS) ---
+# --- 2. INTRO PAGE (HTML/CSS + VOICE) ---
 if not st.session_state.intro_done:
     st.set_page_config(page_title="Nova Chatterix", layout="wide")
     
@@ -95,8 +95,7 @@ if not st.session_state.intro_done:
         </style>
     </head>
     <body>
-    <div class="container">
-        <div class="robot-box">
+    <div class="container" onclick="speak()"> <div class="robot-box">
             <svg width="280" height="280" viewBox="0 0 200 200">
                 <defs>
                     <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -141,12 +140,41 @@ if not st.session_state.intro_done:
         </svg>
         <h1 class="nova-brand">Nova Chatterix</h1>
     </div>
+
+    <script>
+        function speak() {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = "Hello user";
+                msg.volume = 1;
+                msg.rate = 0.9; 
+                msg.pitch = 1.1; 
+                
+                // Fetch voices and try to select a soft female one
+                let voices = window.speechSynthesis.getVoices();
+                let femaleVoice = voices.find(voice => 
+                    voice.name.includes('Female') || 
+                    voice.name.includes('Zira') || 
+                    voice.name.includes('Google UK English Female') ||
+                    voice.name.includes('Samantha')
+                );
+                
+                if (femaleVoice) msg.voice = femaleVoice;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+        
+        // Autostart attempt
+        window.onload = () => {
+            setTimeout(speak, 500);
+        };
+    </script>
     </body>
     </html>
     """
     
     st.components.v1.html(intro_html, height=800)
-    time.sleep(2) 
+    time.sleep(3.5) 
     st.session_state.intro_done = True
     st.rerun()
 
@@ -380,7 +408,6 @@ else:
         st.write("**ENGINE:** NOVA-V2")
         
         st.markdown("---")
-        # Removed SIGNAL: ACTIVE text as requested
 
     # --- 9. MAIN INTERFACE ---
     st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
