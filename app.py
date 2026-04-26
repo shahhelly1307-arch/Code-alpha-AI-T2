@@ -23,147 +23,149 @@ def preprocess_text(text):
     tokens = nltk.word_tokenize(text.lower())
     return " ".join([lemmatizer.lemmatize(token) for token in tokens if token.isalnum()])
 
-# --- 2. ASSET LOADING (Animations) ---
+# --- 2. ASSET LOADING ---
 def load_lottieurl(url: str):
     r = requests.get(url)
-    if r.status_code != 200:
-        return None
+    if r.status_code != 200: return None
     return r.json()
 
-# Futuristic Robot Animation
-lottie_robot = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_96bovdur.json")
+# Main Robot Animation (Matching the "Next-Gen" vibe)
+lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
 @st.cache_data
 def load_data():
-    # Ensure faqs.json exists in your repository
     try:
         with open('faqs.json', 'r') as f:
             data = json.load(f)
         return pd.DataFrame(data)
     except FileNotFoundError:
-        return pd.DataFrame({"question": ["Hello"], "answer": ["Hi there! Please upload faqs.json"]})
+        return pd.DataFrame({"question": ["Hello"], "answer": ["Please upload faqs.json"]})
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION & STYLING ---
-st.set_page_config(page_title="Nova AI Interface", layout="wide")
+# --- 4. UI CONFIGURATION & CUSTOM VOXA THEME ---
+st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
+    /* Background from Image 2: Deep Dark with Cyan Glow */
     .stApp {
-        background: radial-gradient(circle at top right, #0a1f1a, #050505);
-        color: #e0e0e0;
+        background: radial-gradient(circle at center, #001a1a 0%, #050505 100%);
+        color: #ffffff;
     }
     
-    [data-testid="stSidebar"] {
-        background-color: #0d1117 !important;
-        border-right: 1px solid #00FFA3;
+    /* Header Font: Pixel/Tech style similar to Image 1 */
+    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+    
+    .hero-text {
+        font-family: 'DotGothic16', sans-serif;
+        font-size: 5rem !important;
+        color: #00FFA3;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 10px;
+        margin-bottom: 0px;
+        text-shadow: 0 0 20px rgba(0, 255, 163, 0.5);
     }
 
-    /* Animated Chat Blocks */
+    /* Circle Line Aesthetic from Image 2 */
+    .glow-circle {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #00FFA3, transparent);
+        margin-bottom: 30px;
+    }
+
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #050505 !important;
+        border-right: 1px solid rgba(0, 255, 163, 0.3);
+    }
+
+    /* Chat Blocks */
     .q-block {
         background: rgba(0, 255, 163, 0.05);
         border: 1px solid rgba(0, 255, 163, 0.2);
-        padding: 20px;
-        border-radius: 15px;
-        margin-top: 15px;
-        animation: fadeIn 0.5s ease forwards;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
     }
-
     .a-block {
-        background: rgba(255, 255, 255, 0.03);
-        border-left: 4px solid #00FFA3;
-        padding: 20px;
-        border-radius: 0 15px 15px 0;
-        margin-top: 5px;
-        margin-bottom: 20px;
-        animation: fadeIn 0.8s ease forwards;
+        background: rgba(255, 255, 255, 0.02);
+        border-left: 3px solid #00FFA3;
+        padding: 15px;
+        border-radius: 0 10px 10px 0;
+        margin-bottom: 15px;
     }
 
-    /* Floating Effect for Buttons */
+    /* Buttons */
     div.stButton > button {
-        background: transparent !important;
+        background: rgba(0, 255, 163, 0.1) !important;
         color: #00FFA3 !important;
         border: 1px solid #00FFA3 !important;
-        border-radius: 8px !important;
-        transition: all 0.3s ease !important;
-    }
-    div.stButton > button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 15px #00FFA3;
+        width: 100%;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. THE CHAT ENGINE ---
+# --- 5. CHAT ENGINE ---
 def get_response(user_input):
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
-    
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(corpus)
-    
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
     idx = similarity_scores.argmax()
-    confidence = similarity_scores[0][idx]
-    
-    if confidence > 0.2:
-        return df.iloc[idx]['answer'], confidence
-    else:
-        return "I'm sorry, I couldn't find a high-confidence match for that query in the database.", 0
+    if similarity_scores[0][idx] > 0.2:
+        return df.iloc[idx]['answer']
+    return "Query not recognized in neural database."
 
-# --- 6. SIDEBAR & SETTINGS ---
+# --- 6. SIDEBAR (Your Name Restored) ---
 with st.sidebar:
-    st_lottie(lottie_robot, height=150, key="robot")
-    st.title("📂 System Control")
-    
-    # Settings Expander (The "Gear" Equivalent)
-    with st.expander("⚙️ Settings"):
-        if st.button("🗑️ Clear Chat History"):
+    st.title("Settings")
+    with st.expander("⚙️ System Config"):
+        if st.button("Clear History"):
             st.session_state.history = []
             st.rerun()
-            
     st.markdown("---")
-    st.write("**Framework:** MASF AI")
-    st.write("**Engine:** TF-IDF V2")
-    st.markdown('<div style="color:#00FFA3; font-family:monospace; font-size:0.8rem;">● SYSTEM ONLINE</div>', unsafe_allow_html=True)
+    st.write("**Developer:** Helly Shah")
+    st.write("**Version:** 2.0.1")
+    st.markdown('<p style="color:#00FFA3;">● ENGINE: ACTIVE</p>', unsafe_allow_html=True)
 
-# --- 7. MAIN INTERFACE ---
-st.markdown('<h1 style="color: #00FFA3; text-align: center; font-family: Courier New;">🤖 NOVA NEURAL INTERFACE</h1>', unsafe_allow_html=True)
+# --- 7. MAIN INTERFACE (Landing Scene) ---
+# Hero Header based on Image 1
+st.markdown('<p class="hero-text">NOVA CHATTERIX</p>', unsafe_allow_html=True)
+st.markdown('<div class="glow-circle"></div>', unsafe_allow_html=True)
+
+# Central Robot Animation (Image 2 Style - No Text)
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    st_lottie(lottie_main, height=300, key="main_bot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
 # Quick Commands
-st.markdown("### ⚡ SUGGESTED SIGNALS")
 questions = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
+for i, q in enumerate(questions[:3]):
+    if cols[i].button(q): clicked_q = q
 
-for i, q in enumerate(questions[:6]): # Limit to top 6
-    if cols[i % 3].button(q, key=f"btn_{i}"):
-        clicked_q = q
-
-# Input Field
+# Input Form
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Message:", placeholder="Type your query here...")
-    submit = st.form_submit_button("SEND")
+    user_query = st.text_input("Signal input:", placeholder="Ask anything...")
+    submit = st.form_submit_button("Transmit")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
 
 if final_query:
-    ans, conf = get_response(final_query)
-    st.session_state.history.append({"q": final_query, "a": ans, "c": conf})
+    ans = get_response(final_query)
+    st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# Display History with Animation
+# History Display
 for item in reversed(st.session_state.history):
-    st.markdown(f'<div class="q-block">📡 <b>Signal:</b> {item["q"]}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="a-block">🤖 <b>Nova:</b> {item["a"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="q-block">👤 {item["q"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="a-block">🤖 {item["a"]}</div>', unsafe_allow_html=True)
