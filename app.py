@@ -66,67 +66,89 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* FIXED BACKGROUND: NO MORE FULL BLACK */
+    /* BACKGROUND: TRIPLE STOP GRADIENT (BLUE on both sides, PURPLE in middle) */
     .stApp {
-        background: #000000 !important;
+        background-color: #000000 !important;
         background-image: 
-            linear-gradient(
-                180deg, 
-                rgba(0, 229, 255, 0.6) 0%, 
-                rgba(180, 82, 255, 0.6) 100%
-            ) !important;
+            linear-gradient(90deg, 
+                #00e5ff 0%, 
+                #b452ff 50%, 
+                #00e5ff 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
+        background-blend-mode: overlay; 
         color: #ffffff;
     }
     
+    /* HEADER Styling */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
         font-weight: 700 !important;
-        background: linear-gradient(to right, #00e5ff, #b452ff);
+        background: linear-gradient(to right, #ffffff, #00e5ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
         text-transform: uppercase;
+        white-space: nowrap; 
         letter-spacing: -3px;
         margin-top: 10px;
-        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
+        margin-bottom: 0px;
+        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.6));
     }
 
     .orbital-line {
         height: 3px;
-        background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+        background: linear-gradient(90deg, transparent, #ffffff, transparent);
         width: 80%;
         margin: 0 auto 40px auto;
         box-shadow: 0 0 15px #00e5ff;
     }
 
+    /* SIDEBAR styling */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.9) !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
         border-right: 2px solid #00e5ff;
     }
 
+    .sidebar-label {
+        color: #00e5ff;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
+
+    /* Buttons and Inputs */
     div.stButton > button {
-        background: rgba(0, 229, 255, 0.05) !important;
+        background: rgba(0, 0, 0, 0.4) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
+        font-size: 0.85rem !important;
+        transition: 0.3s;
     }
 
+    div.stButton > button:hover {
+        background: rgba(0, 229, 255, 0.3) !important;
+        box-shadow: 0 0 20px #00e5ff;
+        color: #fff !important;
+    }
+    
     .stTextInput input {
-        background-color: rgba(20, 20, 20, 0.9) !important;
+        background-color: rgba(0, 0, 0, 0.7) !important;
         border: 2px solid #00e5ff !important;
         color: #ffffff !important;
     }
 
+    /* Adjusted Chat Card for better visibility against dual-side gradient */
     .chat-card {
-        background: rgba(0, 229, 255, 0.03);
+        background: rgba(0, 0, 0, 0.5);
         border: 1px solid #00e5ff;
-        border-left: 5px solid #00e5ff;
+        border-left: 5px solid #b452ff;
         padding: 20px;
         margin-bottom: 15px;
         backdrop-filter: blur(10px);
+        border-radius: 4px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -139,42 +161,72 @@ def get_response(user_input):
         
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
+    
+    # Handle empty or system status dataframe
+    if not corpus or df.iloc[0]['question'] == "System Status":
+         return "Neural Signal Mismatch. Data not found in current frequency."
+
     corpus.append(processed_input)
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(corpus)
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
     idx = similarity_scores.argmax()
+    
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
     return "Neural Signal Mismatch. Data not found in current frequency."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.markdown("### SETTINGS")
+    st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
     if st.button("CLEAR ACTIVE CACHE"):
         st.session_state.history = []
         st.rerun()
+    
+    st.markdown("---")
+    st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
     st.write("**DEVELOPER:** Helly")
+    st.write("**ENGINE:** NPCL V2.0")
+    
+    st.markdown("---")
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
-    st_lottie(lottie_main, height=150, key="main_robot")
+    col_rob, _ = st.columns([1, 4])
+    with col_rob:
+        st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
+st.markdown("### 📡 ACTIVE FREQUENCIES")
+questions_list = df['question'].tolist()
+cols = st.columns(3)
+clicked_q = None
+
+# Frequency selection buttons
+for i, q in enumerate(questions_list):
+    if cols[i % 3].button(q, key=f"q_{i}"):
+        clicked_q = q
+
+# Command input form
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:")
+    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
-if submit and user_query:
-    ans = get_response(user_query)
-    st.session_state.history.append({"q": user_query, "a": ans})
+final_query = clicked_q if clicked_q else (user_query if submit else None)
+
+if final_query:
+    ans = get_response(final_query)
+    st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
+# Display chat history
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
