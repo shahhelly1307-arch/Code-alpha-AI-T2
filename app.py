@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd
+import pd
 import json
 import nltk
 import requests
@@ -46,69 +46,70 @@ def load_data():
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (VOXA IMAGE 2 REPLICA) ---
+# --- 4. THE VOXA REPLICA UI ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* Professional Pixel Font */
-    @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+    /* Importing a much chunkier pixel font */
+    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
-        font-family: 'DotGothic16', sans-serif !important;
+        font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: The Deep Blue Radial Glow from Image 2 */
+    /* BACKGROUND: Deep Black with the precise Icy Blue center glow */
     .stApp {
         background: radial-gradient(circle at 50% 50%, #0a2d3d 0%, #000000 85%) !important;
         color: #ffffff;
     }
     
-    /* HEADER: Massive, Single Line, Icy Blue Glow */
+    /* THE VOXA HEADER: MASSIVE, THICK, SINGLE LINE */
     .voxa-header {
-        font-size: clamp(3rem, 8vw, 12rem) !important; 
-        font-weight: 900 !important;
-        color: #00e5ff !important; 
+        font-family: 'Silkscreen', cursive !important;
+        font-size: clamp(3rem, 7.5vw, 12rem) !important; 
+        font-weight: 700 !important;
+        color: #00e5ff !important; /* Brighter VOXA Cyan */
         text-align: center;
         text-transform: uppercase;
         white-space: nowrap; 
-        letter-spacing: -5px;
-        margin-top: 0px;
+        letter-spacing: -4px;
+        margin-top: 10px;
         margin-bottom: 0px;
-        padding-top: 20px;
+        /* STACKED SHADOWS: This makes the font look "Thick" and "Blocky" */
         text-shadow: 
-            5px 5px 0px #004d4d,
-            0 0 50px rgba(0, 229, 255, 0.6);
+            2px 2px 0px #004d4d, 
+            4px 4px 0px #004d4d, 
+            6px 6px 0px #004d4d,
+            0 0 40px rgba(0, 229, 255, 0.7);
     }
 
     .orbital-line {
-        height: 3px;
+        height: 4px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-        width: 80%;
+        width: 85%;
         margin: 0 auto 40px auto;
         box-shadow: 0 0 20px #00e5ff;
     }
 
-    /* SIDEBAR: Restoring the Left Side Visibility */
+    /* SIDEBAR: Restoring Left Panel Visibility */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.9) !important;
-        border-right: 1px solid #00e5ff;
-        width: 300px !important;
+        background-color: rgba(0, 0, 0, 0.95) !important;
+        border-right: 2px solid #00e5ff;
     }
 
     .sidebar-label {
         color: #00e5ff;
-        font-size: 1.1rem;
+        font-size: 1rem;
         letter-spacing: 2px;
         font-weight: bold;
     }
 
-    /* Buttons & Inputs */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
-        width: 100%;
+        border-radius: 0px !important;
     }
     
     .stTextInput input {
@@ -128,7 +129,6 @@ st.markdown("""
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
-    # Professional Developer Response Override
     dev_query = user_input.lower()
     if "developed" in dev_query or "creator" in dev_query or "who made" in dev_query:
         return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
@@ -144,7 +144,7 @@ def get_response(user_input):
         return df.iloc[idx]['answer']
     return "Neural Signal Mismatch. Data not found."
 
-# --- 6. SIDEBAR (RESTORED LEFT SIDE) ---
+# --- 6. SIDEBAR (NPCL & STATUS) ---
 with st.sidebar:
     st.markdown('<p class="sidebar-label">SETTINGS</p>', unsafe_allow_html=True)
     if st.button("CLEAR HISTORY"):
@@ -155,7 +155,6 @@ with st.sidebar:
     st.markdown('<p class="sidebar-label">NPCL CONTROL</p>', unsafe_allow_html=True)
     st.write("**DEVELOPER:** Helly Shah")
     st.write("**ENGINE:** NPCL V2.0")
-    st.write("**STATUS:** STABLE")
     
     st.markdown("---")
     st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
@@ -173,7 +172,6 @@ if lottie_main:
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Frequencies Grid
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
@@ -183,7 +181,6 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Form
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="ENTER SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
