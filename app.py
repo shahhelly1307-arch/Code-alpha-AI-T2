@@ -42,11 +42,7 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        # Fallback data if JSON is missing
-        return pd.DataFrame({
-            "question": ["System Status", "Who are you?", "Capabilities"], 
-            "answer": ["Database signal active.", "I am Nova, your neural interface.", "I process NLP queries in real-time."]
-        })
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active."]})
 
 df = load_data()
 
@@ -61,15 +57,12 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: Your Custom 4-Tone Linear Gradient */
+    /* BACKGROUND: SOLID BLACK CENTER WITH NEON GRADIENT SIDES */
     .stApp {
-        background: linear-gradient(
-            135deg,
-            #0f2a35,
-            #0b1a2a,
-            #1f3f8f,
-            #2b4fb8
-        ) !important;
+        background-color: #000000 !important;
+        background-image: 
+            radial-gradient(circle at 0% 50%, rgba(0, 229, 255, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 100% 50%, rgba(180, 82, 255, 0.15) 0%, transparent 40%) !important;
         background-attachment: fixed !important;
         color: #ffffff;
     }
@@ -101,7 +94,7 @@ st.markdown("""
 
     /* SIDEBAR styling */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.8) !important;
+        background-color: rgba(0, 0, 0, 0.9) !important;
         border-right: 2px solid #00e5ff;
     }
 
@@ -114,35 +107,33 @@ st.markdown("""
 
     /* NEON CYAN BOXES */
     div.stButton > button {
-        background: rgba(0, 229, 255, 0.1) !important;
+        background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
         font-size: 0.85rem !important;
         transition: 0.3s;
-        width: 100%;
     }
 
     div.stButton > button:hover {
-        background: rgba(0, 229, 255, 0.3) !important;
+        background: rgba(0, 229, 255, 0.2) !important;
         box-shadow: 0 0 20px #00e5ff;
         color: #fff !important;
     }
     
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.6) !important;
+        background-color: rgba(20, 20, 20, 0.9) !important;
         border: 2px solid #00e5ff !important;
         color: #ffffff !important;
-        border-radius: 0px;
     }
 
     .chat-card {
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 229, 255, 0.03);
         border: 1px solid #00e5ff;
         border-left: 5px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(10px);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -150,20 +141,16 @@ st.markdown("""
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
     dev_query = user_input.lower()
-    if any(word in dev_query for word in ["developed", "creator", "who made"]):
+    if any(x in dev_query for x in ["developed", "creator", "who made"]):
         return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
         
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
-    
-    # Vectorization
+    corpus.append(processed_input)
     vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(corpus + [processed_input])
-    
-    # Cosine Similarity
+    tfidf_matrix = vectorizer.fit_transform(corpus)
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
     idx = similarity_scores.argmax()
-    
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
     return "Neural Signal Mismatch. Data not found in current frequency."
@@ -189,29 +176,26 @@ st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
-    col_rob, col_empty = st.columns([1, 4])
+    col_rob, _ = st.columns([1, 4])
     with col_rob:
         st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Quick Signal Buttons
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
 
-for i, q in enumerate(questions_list[:6]): # Limit to top 6 for clean UI
+for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Input Form
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
-# Logic Handling
 final_query = clicked_q if clicked_q else (user_query if submit else None)
 
 if final_query:
@@ -219,7 +203,6 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# Display Chat History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
