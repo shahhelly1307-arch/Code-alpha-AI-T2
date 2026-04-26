@@ -54,14 +54,14 @@ def load_data():
     except Exception:
         # Fallback if file is missing
         return pd.DataFrame({
-            "question": ["System Status", "What is Novo Chatterix?"], 
+            "question": ["System Status", "What is Nova Chatterix?"], 
             "answer": ["Database signal active. Please check faqs.json file.", "A high-end NLP interface built for demo purposes."]
         })
 
 df = load_data()
 
 # --- 4. THE UI CONFIG ---
-st.set_page_config(page_title="Novo Chatterix", layout="wide")
+st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
