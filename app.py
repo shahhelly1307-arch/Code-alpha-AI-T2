@@ -46,142 +46,147 @@ def load_data():
 
 df = load_data()
 
-# --- 4. UI CONFIG ---
+# --- 4. THE VOXA REPLICA UI (BLUE/PURPLE GRADIENT EDITION) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
+    
+    html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
+        font-family: 'Silkscreen', cursive !important;
+    }
 
-html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
-    font-family: 'Silkscreen', cursive !important;
-}
+    /* BACKGROUND: The Blue/Purple Cosmic Mix from the image */
+    .stApp {
+        background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #0a0a2e 40%, #000000 100%) !important;
+        color: #ffffff;
+    }
+    
+    /* HEADER: Dual-tone Blue/Purple Glow with blocky font */
+    .voxa-header {
+        font-family: 'Silkscreen', cursive !important;
+        font-size: clamp(2.5rem, 6.5vw, 9rem) !important; 
+        font-weight: 700 !important;
+        /* Icy Blue to Light Purple gradient effect on text */
+        background: linear-gradient(to right, #00e5ff, #b452ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+        text-transform: uppercase;
+        white-space: nowrap; 
+        letter-spacing: -3px;
+        margin-top: 10px;
+        margin-bottom: 0px;
+        filter: drop-shadow(0 0 20px rgba(180, 82, 255, 0.5));
+    }
 
-/* BACKGROUND */
-.stApp {
-    background: radial-gradient(circle at 50% 40%, #0d3b4f 0%, #020202 85%) !important;
-    color: #e6f7ff;
-}
+    .orbital-line {
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #00e5ff, #b452ff, transparent);
+        width: 80%;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 0 15px #b452ff;
+    }
 
-/* HEADER */
-.voxa-header {
-    font-size: clamp(2.5rem, 6vw, 8rem);
-    color: #66e0ff;
-    text-align: center;
-    letter-spacing: -3px;
-    text-shadow: 
-        2px 2px 0px #003344,
-        4px 4px 0px #003344,
-        0 0 40px rgba(102, 224, 255, 0.8);
-}
+    /* SIDEBAR styling matching the new palette */
+    [data-testid="stSidebar"] {
+        background-color: rgba(10, 5, 20, 0.95) !important;
+        border-right: 2px solid #b452ff;
+    }
 
-/* GLOW LINE */
-.orbital-line {
-    height: 4px;
-    background: linear-gradient(90deg, transparent, #66e0ff, transparent);
-    width: 80%;
-    margin: 0 auto 40px auto;
-    box-shadow: 0 0 25px #66e0ff;
-}
+    .sidebar-label {
+        color: #b452ff;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
 
-/* SIDEBAR */
-[data-testid="stSidebar"] {
-    background-color: #050505 !important;
-    border-right: 1px solid #66e0ff;
-}
+    div.stButton > button {
+        background: rgba(180, 82, 255, 0.05) !important;
+        color: #00e5ff !important;
+        border: 2px solid #b452ff !important;
+        border-radius: 4px !important;
+        font-size: 0.85rem !important;
+    }
 
-.sidebar-label {
-    color: #66e0ff;
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-}
+    div.stButton > button:hover {
+        border-color: #00e5ff !important;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+    }
+    
+    .stTextInput input {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        border: 2px solid #b452ff !important;
+        color: #ffffff !important;
+    }
 
-/* BUTTON */
-div.stButton > button {
-    background: rgba(102, 224, 255, 0.08);
-    color: #66e0ff;
-    border: 1px solid #66e0ff;
-    border-radius: 0;
-}
+    .chat-card {
+        background: rgba(26, 11, 46, 0.6);
+        border: 1px solid #b452ff;
+        border-left: 5px solid #00e5ff;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-/* INPUT */
-.stTextInput input {
-    background-color: rgba(0, 0, 0, 0.85);
-    border: 1px solid #66e0ff;
-    color: #e6f7ff;
-}
-
-/* CHAT BOX */
-.chat-card {
-    background: rgba(13, 59, 79, 0.35);
-    border: 1px solid #66e0ff;
-    padding: 20px;
-    margin-bottom: 15px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# --- 5. LOGIC ---
+# --- 5. LOGIC ENGINE ---
 def get_response(user_input):
     dev_query = user_input.lower()
     if "developed" in dev_query or "creator" in dev_query or "who made" in dev_query:
-        return "This project was developed by Helly."
-
+        return "This project was developed by Helly as a technical demonstration of NLP and professional UI integration."
+        
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
-
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(corpus)
-
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
     idx = similarity_scores.argmax()
-
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-
-    return "Neural Signal Mismatch."
+    return "Neural Signal Mismatch. Data not found."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.markdown('<p class="sidebar-label">SETTINGS</p>', unsafe_allow_html=True)
-
-    if st.button("CLEAR HISTORY"):
+    st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
+    if st.button("RESET CONTEXT"):
         st.session_state.history = []
         st.rerun()
-
+    
     st.markdown("---")
-    st.markdown('<p class="sidebar-label">SYSTEM</p>', unsafe_allow_html=True)
-    st.write("**DEVELOPER:** Helly")
+    st.markdown('<p class="sidebar-label">CREDENTIALS</p>', unsafe_allow_html=True)
+    st.write("**DEVELOPER:** Helly Shah")
     st.write("**ENGINE:** NPCL V2.0")
-
+    
     st.markdown("---")
-    st.markdown('<p style="color:#66e0ff;">● SYSTEM ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#b452ff;">● STATUS: ENCRYPTED</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff;">● SIGNAL: SYNCHRONIZED</p>', unsafe_allow_html=True)
 
-# --- 7. MAIN UI ---
+# --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
     col_rob, _ = st.columns([1, 4])
     with col_rob:
-        st_lottie(lottie_main, height=150)
+        st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
 st.markdown("### 📡 ACTIVE FREQUENCIES")
-
 questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
 
 for i, q in enumerate(questions_list):
-    if cols[i % 3].button(q):
+    if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="ENTER SIGNAL...")
+    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
@@ -194,7 +199,7 @@ if final_query:
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#66e0ff">SIGNAL:</b> {item["q"]}<br><br>
-        <b>NOVA:</b> {item["a"]}
+        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
+        <b style="color:#b452ff">NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
