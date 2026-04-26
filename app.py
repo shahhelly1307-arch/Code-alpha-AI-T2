@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem import WordNetLemmatizer
 
-# --- 1. NLP SETUP ---
+# --- SETUP ---
 @st.cache_resource
 def setup_nlp():
     nltk.download('punkt')
@@ -22,17 +22,6 @@ def preprocess_text(text):
     tokens = nltk.word_tokenize(text.lower())
     return " ".join([lemmatizer.lemmatize(token) for token in tokens if token.isalnum()])
 
-# --- 2. ASSET LOADING ---
-def load_lottieurl(url: str):
-    try:
-        r = requests.get(url, timeout=10)
-        if r.status_code != 200: return None
-        return r.json()
-    except: return None
-
-lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
-
-# --- 3. DATA LOADING ---
 @st.cache_data
 def load_data():
     try:
@@ -47,92 +36,94 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE UI REPAIR (SCREEN SIZE & LEFT SIDE FIX) ---
+# --- THE UI (VIBRANT SIDE GLOWS) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
-    /* 1. REMOVE EXCESSIVE PADDING & REDUCE WIDTH */
-    .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 0rem !important;
-        padding-left: 5% !important;
-        padding-right: 5% !important;
-        max-width: 95% !important; /* This stops the 'Too Big' feel */
-    }
-
-    /* 2. DUAL-SIDE GLOW (Adjusted for visibility) */
+    /* FORCE GLOBAL BLACK */
     [data-testid="stAppViewContainer"] {
         background-color: #000000 !important;
-        background-image: 
-            radial-gradient(circle at 8% 50%, rgba(0, 229, 255, 0.4) 0%, transparent 35%),
-            radial-gradient(circle at 92% 50%, rgba(180, 82, 255, 0.3) 0%, transparent 35%) !important;
-        background-attachment: fixed !important;
     }
 
-    /* 3. FIX SIDEBAR OVERLAP */
-    [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.8) !important;
-        border-right: 1px solid rgba(0, 229, 255, 0.2);
+    /* THE VOXA MIX: HEAVY BLUE (LEFT) AND PURPLE (RIGHT) */
+    [data-testid="stAppViewMainArea"] {
+        background: 
+            radial-gradient(circle at -10% 50%, #00e5ff 0%, transparent 50%),
+            radial-gradient(circle at 110% 50%, #b452ff 0%, transparent 50%) !important;
+        background-color: #000000 !important;
     }
 
-    /* 4. CONTENT STYLING */
+    /* FIXING PADDING AND TRANSPARENCY */
+    .block-container {
+        padding-top: 2rem !important;
+        max-width: 90% !important;
+        background: transparent !important;
+    }
+
+    [data-testid="stHeader"], .main {
+        background: transparent !important;
+    }
+
     * { font-family: 'Silkscreen', cursive !important; color: white; }
 
+    /* HEADER */
     .voxa-header {
-        font-size: clamp(2rem, 5vw, 4.5rem) !important; 
+        font-size: clamp(2rem, 5vw, 5rem) !important; 
         background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
-        filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5));
-        margin-top: -20px;
+        margin-top: -10px;
+        filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.6));
     }
 
     .orbital-line {
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #00e5ff, #b452ff, transparent);
         width: 60%;
-        margin: 0 auto 20px auto;
+        margin: 0 auto 30px auto;
     }
 
     /* BUTTONS */
     div.stButton > button {
-        background: rgba(0, 0, 0, 0.6) !important;
+        background: rgba(0, 0, 0, 0.8) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
-        border-radius: 4px !important;
+        border-radius: 2px !important;
         width: 100%;
-        padding: 10px;
-        font-size: 0.75rem !important;
+        padding: 12px;
     }
 
     div.stButton > button:hover {
-        box-shadow: 0 0 15px #00e5ff;
-        background: rgba(0, 229, 255, 0.1) !important;
+        box-shadow: 0 0 25px #00e5ff;
+        background: #00e5ff !important;
+        color: black !important;
     }
 
-    /* INPUT FIELD */
+    /* INPUT */
     .stTextInput input {
-        background-color: rgba(10, 10, 10, 0.9) !important;
-        border: 2px solid #00e5ff !important;
-        height: 45px;
+        background-color: rgba(0, 0, 0, 0.9) !important;
+        border: 2px solid #b452ff !important;
+        color: white !important;
+        height: 50px;
     }
 
+    /* CHAT CARDS */
     .chat-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(0, 229, 255, 0.2);
-        border-left: 5px solid #00e5ff;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid #b452ff;
+        border-left: 8px solid #00e5ff;
+        padding: 20px;
+        margin-bottom: 15px;
+        backdrop-filter: blur(5px);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. LOGIC ENGINE ---
+# --- LOGIC ---
 def get_response(user_input):
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
@@ -143,9 +134,9 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Signal Mismatch. Signal lost."
+    return "Neural Signal Mismatch."
 
-# --- 6. INTERFACE ---
+# --- MAIN ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
@@ -156,12 +147,10 @@ st.markdown("### 📡 ACTIVE FREQUENCIES")
 cols = st.columns(3)
 clicked_q = None
 
-# Grid display
 for i, q in enumerate(df['question'].tolist()[:6]):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Transmit Area
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -173,11 +162,10 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <span style="color:#00e5ff; font-weight:bold;">SIGNAL:</span> {item["q"]}<br>
+        <span style="color:#00e5ff; font-weight:bold;">SIGNAL:</span> {item["q"]}<br><br>
         <span style="color:#b452ff; font-weight:bold;">NOVA:</span> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
