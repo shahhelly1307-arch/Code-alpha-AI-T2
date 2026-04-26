@@ -66,7 +66,7 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: PERFECT TOP (LIGHT BLUE) TO BOTTOM (PURPLE) MIX FROM IMAGE */
+    /* BACKGROUND: MIXED TOP (LIGHT BLUE) TO BOTTOM (PURPLE) GRADIENT */
     .stApp {
         background-color: #000000 !important;
         background-image: 
@@ -76,7 +76,7 @@ st.markdown("""
         color: #ffffff;
     }
     
-    /* HEADER: Cyan-Purple Text Gradient Recreating "VOXA" style */
+    /* HEADER Styling */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
@@ -114,7 +114,7 @@ st.markdown("""
         font-weight: bold;
     }
 
-    /* NEON CYAN BOXES */
+    /* Buttons and Inputs */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
@@ -147,7 +147,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. LOGIC ENGINE (Restored to Helly) ---
+# --- 5. LOGIC ENGINE ---
 def get_response(user_input):
     dev_query = user_input.lower()
     if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
