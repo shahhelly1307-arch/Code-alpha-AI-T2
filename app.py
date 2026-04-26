@@ -42,6 +42,7 @@ def load_lottieurl(url: str):
     except Exception:
         return None
 
+# Using a floating robot Lottie
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
@@ -56,16 +57,15 @@ def load_data():
 
 df = load_data()
 
-# --- 4. THE NOVO CHATTERIX UI & ANIMATION ---
-st.set_page_config(page_title="Novo Chatterix", layout="wide")
+# --- 4. THE NOVO CHATTERIX UI ---
+st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
-# Initialize session state for the splash screen
 if 'visited' not in st.session_state:
     st.session_state.visited = False
 
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Silkscreen:wght@700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
         font-family: 'Silkscreen', cursive !important;
@@ -81,84 +81,90 @@ st.markdown("""
         background-attachment: fixed !important;
     }
 
-    /* HERO / SPLASH STYLING */
-    .hero-container {
+    /* SPLASH PAGE LAYOUT */
+    .splash-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 80vh;
         text-align: center;
-        padding-top: 80px;
-        position: relative;
     }
 
-    .arch-glow {
-        position: absolute;
-        width: 700px;
-        height: 350px;
-        border: 3px solid rgba(0, 229, 255, 0.4);
-        border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-        bottom: -20px;
-        left: 50%;
-        transform: translateX(-50%);
+    /* THE GLOWING CIRCLE (ARCH) - Positioned at the TOP */
+    .top-arch {
+        width: 600px;
+        height: 300px;
+        border: 3px solid rgba(0, 229, 255, 0.5);
+        border-radius: 300px 300px 0 0;
+        border-bottom: none;
         background: radial-gradient(circle at 50% 100%, rgba(0, 229, 255, 0.1), transparent 70%);
-        box-shadow: 0 -10px 40px rgba(0, 229, 255, 0.2);
+        box-shadow: 0 -10px 40px rgba(0, 229, 255, 0.3);
+        margin-bottom: -50px;
     }
 
     .hero-title {
-        font-size: 5rem;
-        font-weight: 700;
+        font-size: 4rem;
         background: linear-gradient(90deg, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-top: 20px;
+        margin: 20px 0;
+        z-index: 10;
     }
 
-    /* CHAT CARD STYLING */
+    /* ROBOT FLYING ANIMATION */
+    .robot-box {
+        animation: flyUp 5s ease-in-out forwards;
+    }
+
+    @keyframes flyUp {
+        0% { transform: translateY(100px); opacity: 0; }
+        20% { transform: translateY(50px); opacity: 1; }
+        100% { transform: translateY(-150px); opacity: 1; }
+    }
+
+    /* CHAT STYLING */
     .chat-card {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(0, 229, 255, 0.2);
-        border-left: 5px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
+        border-radius: 8px;
         backdrop-filter: blur(10px);
-        border-radius: 4px;
-    }
-    
-    .stTextInput input {
-        background-color: rgba(20, 20, 20, 0.7) !important;
-        border: 1px solid rgba(0, 229, 255, 0.5) !important;
-        color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 5. SPLASH SCREEN LOGIC ---
+# --- 5. SPLASH SCREEN (WITH FLYING ROBOT) ---
 placeholder = st.empty()
 
 if not st.session_state.visited:
     with placeholder.container():
-        st.markdown("""
-            <div class="hero-container">
-                <div class="arch-glow"></div>
-                <h1 class="hero-title">NOVA CHATTERIX</h1>
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown('<div class="splash-container">', unsafe_allow_html=True)
+        st.markdown('<div class="top-arch"></div>', unsafe_allow_html=True)
+        st.markdown('<h1 class="hero-title">NOVA CHATTERIX</h1>', unsafe_allow_html=True)
         
-        # Central Animated Robot
+        # This div triggers the 'flyUp' animation
+        st.markdown('<div class="robot-box">', unsafe_allow_html=True)
         _, col_c, _ = st.columns([1, 2, 1])
         with col_c:
             if lottie_main:
-                st_lottie(lottie_main, height=400, key="splash_robot")
+                st_lottie(lottie_main, height=300, key="flying_robot")
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        st.markdown("<h3 style='text-align:center; color:#00e5ff; opacity:0.6;'>INITIALIZING NEURAL LINK...</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color:#00e5ff; margin-top:20px;'>INITIALIZING NEURAL LINK...</h3>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        time.sleep(5)  # The 5-second delay
+        time.sleep(5)
         st.session_state.visited = True
         st.rerun()
 
-# --- 6. MAIN CHATBOT INTERFACE (LOADS AFTER 5 SECS) ---
+# --- 6. MAIN CHATBOT PAGE ---
 def get_response(user_input):
     dev_query = user_input.lower()
     if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
         return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
-        
+    
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -170,45 +176,32 @@ def get_response(user_input):
         return df.iloc[idx]['answer']
     return "Neural Signal Mismatch. Data not found in current frequency."
 
+# Sidebar
 with st.sidebar:
-    st.markdown("### SYSTEM CONTROLS")
-    if st.button("RESET INTERFACE"):
-        st.session_state.history = []
-        st.session_state.visited = False # Go back to splash
+    st.markdown("### SYSTEM SETTINGS")
+    if st.button("RELOAD INTERFACE"):
+        st.session_state.visited = False
         st.rerun()
-    st.write("**ENGINE:** NPCL V2.0")
-    st.write("**STATUS:** 🟢 ACTIVE")
+    st.write("**DEVELOPER:** Helly")
 
-# Header for Chat Page
-st.markdown("<h1 style='text-align:center; color:#00e5ff; letter-spacing: -2px;'>NOVA CHATTERIX</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 1px solid rgba(0, 229, 255, 0.2);'>", unsafe_allow_html=True)
+# Chat Header
+st.markdown("<h1 style='text-align:center; color:#00e5ff;'>NOVA CHATTERIX</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border:1px solid rgba(0,229,255,0.1)'>", unsafe_allow_html=True)
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Quick Questions
-st.markdown("### 📡 FREQUENCY SELECT")
-questions_list = df['question'].tolist()
-cols = st.columns(3)
-clicked_q = None
-
-for i, q in enumerate(questions_list):
-    if cols[i % 3].button(q, key=f"q_{i}"):
-        clicked_q = q
-
-# Input Form
+# Input
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="Awaiting Signal...")
+    user_query = st.text_input("Transmit Command:", placeholder="Type here...")
     submit = st.form_submit_button("TRANSMIT")
 
-final_query = clicked_q if clicked_q else (user_query if submit else None)
-
-if final_query:
-    ans = get_response(final_query)
-    st.session_state.history.append({"q": final_query, "a": ans})
+if submit and user_query:
+    ans = get_response(user_query)
+    st.session_state.history.append({"q": user_query, "a": ans})
     st.rerun()
 
-# Chat Logs
+# Display History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
