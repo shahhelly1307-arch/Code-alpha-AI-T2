@@ -66,30 +66,30 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: MIXED TOP (LIGHT BLUE) TO BOTTOM (PURPLE) GRADIENT */
+    /* BACKGROUND: Symmetrical Horizontal Gradient */
+    /* Blue (Left) -> Purple (Center) -> Blue (Right) */
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            linear-gradient(180deg, rgba(0, 229, 255, 0.45) 0%, rgba(180, 82, 255, 0.45) 100%) !important;
+            linear-gradient(90deg, 
+                rgba(0, 229, 255, 0.4) 0%, 
+                rgba(180, 82, 255, 0.4) 50%, 
+                rgba(0, 229, 255, 0.4) 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
         color: #ffffff;
     }
     
-    /* HEADER Styling */
     .voxa-header {
-        font-family: 'Silkscreen', cursive !important;
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
         font-weight: 700 !important;
-        background: linear-gradient(to right, #00e5ff, #b452ff);
+        background: linear-gradient(to right, #00e5ff, #b452ff, #00e5ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
         text-transform: uppercase;
-        white-space: nowrap; 
         letter-spacing: -3px;
         margin-top: 10px;
-        margin-bottom: 0px;
         filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
     }
 
@@ -101,9 +101,8 @@ st.markdown("""
         box-shadow: 0 0 15px #00e5ff;
     }
 
-    /* SIDEBAR styling */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.9) !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
         border-right: 2px solid #00e5ff;
     }
 
@@ -114,13 +113,11 @@ st.markdown("""
         font-weight: bold;
     }
 
-    /* Buttons and Inputs */
     div.stButton > button {
-        background: rgba(0, 229, 255, 0.05) !important;
+        background: rgba(0, 0, 0, 0.5) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
-        font-size: 0.85rem !important;
         transition: 0.3s;
     }
 
@@ -131,15 +128,15 @@ st.markdown("""
     }
     
     .stTextInput input {
-        background-color: rgba(20, 20, 20, 0.9) !important;
+        background-color: rgba(0, 0, 0, 0.7) !important;
         border: 2px solid #00e5ff !important;
         color: #ffffff !important;
     }
 
     .chat-card {
-        background: rgba(0, 229, 255, 0.03);
+        background: rgba(0, 0, 0, 0.5);
         border: 1px solid #00e5ff;
-        border-left: 5px solid #00e5ff;
+        border-left: 5px solid #b452ff;
         padding: 20px;
         margin-bottom: 15px;
         backdrop-filter: blur(10px);
