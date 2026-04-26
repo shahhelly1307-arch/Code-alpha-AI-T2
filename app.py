@@ -42,6 +42,7 @@ def load_lottieurl(url: str):
     except Exception:
         return None
 
+# Animated waving robot
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
 # --- 3. DATA LOADING ---
@@ -56,11 +57,11 @@ def load_data():
 
 df = load_data()
 
-# --- 4. SESSION STATE CONTROL ---
-if 'intro_played' not in st.session_state:
-    st.session_state.intro_played = False
+# --- 4. SESSION STATE FOR INTRO ---
+if 'intro_done' not in st.session_state:
+    st.session_state.intro_done = False
 
-# --- 5. THE NOVO CHATTERIX UI (YOUR ORIGINAL STYLING) ---
+# --- 5. THE NOVO CHATTERIX UI STYLING ---
 st.set_page_config(page_title="Novo Chatterix", layout="wide")
 
 st.markdown("""
@@ -98,17 +99,18 @@ st.markdown("""
         filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
     }
 
-    /* THE HALF CIRCLE FOR INTRO */
-    .intro-half-circle {
+    /* THE HALF GRADIENT CIRCLE FROM YOUR IMAGE */
+    .half-circle-glow {
         position: fixed;
         bottom: -300px;
         left: 50%;
         transform: translateX(-50%);
-        width: 1000px;
+        width: 1100px;
         height: 600px;
-        background: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.6) 0%, rgba(180, 82, 255, 0.3) 40%, transparent 70%);
+        background: radial-gradient(circle at 50% 0%, #00e5ff 0%, #b452ff 30%, transparent 70%);
         border-radius: 50%;
         z-index: -1;
+        opacity: 0.6;
     }
 
     .orbital-line {
@@ -159,36 +161,35 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 6. INTRO SCREEN ---
-if not st.session_state.intro_played:
-    # Hide sidebar and main UI temporarily
+# --- 6. PHASE 1: THE INTRO SCREEN ---
+if not st.session_state.intro_done:
+    # Hide sidebar during intro
     st.markdown("<style>[data-testid='stSidebar'] {display: none;} </style>", unsafe_allow_html=True)
     
     st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
     
-    # Show Robot waving
+    # Center Column for the Waving Robot
     col_l, col_c, col_r = st.columns([1, 2, 1])
     with col_c:
         if lottie_main:
-            st_lottie(lottie_main, height=400, key="intro_robot")
-        st.markdown('<p class="voxa-header" style="font-size: 4rem !important;">NOVA CHATTERIX</p>', unsafe_allow_html=True)
+            st_lottie(lottie_main, height=400, key="intro_robot_shaking")
+        st.markdown('<p class="voxa-header" style="font-size: 3.5rem !important;">NOVA CHATTERIX</p>', unsafe_allow_html=True)
     
-    # Show the half circle at bottom
-    st.markdown('<div class="intro-half-circle"></div>', unsafe_allow_html=True)
+    # Show the Half Circle Glow
+    st.markdown('<div class="half-circle-glow"></div>', unsafe_allow_html=True)
     
-    # Wait 2.5 seconds (Robot waves twice) then refresh to Chat
+    # Wait for 2.5 seconds (Robot shakes hand/waves), then switch to Page 2
     time.sleep(2.5)
-    st.session_state.intro_played = True
+    st.session_state.intro_done = True
     st.rerun()
 
-# --- 7. YOUR ORIGINAL MAIN INTERFACE (NO CHANGES) ---
+# --- 7. PHASE 2: YOUR ORIGINAL CHATBOT PAGE ---
 else:
-    # --- LOGIC ENGINE ---
+    # Logic Engine
     def get_response(user_input):
         dev_query = user_input.lower()
         if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
             return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
-            
         processed_input = preprocess_text(user_input)
         corpus = df['question'].apply(preprocess_text).tolist()
         corpus.append(processed_input)
@@ -200,30 +201,28 @@ else:
             return df.iloc[idx]['answer']
         return "Neural Signal Mismatch. Data not found in current frequency."
 
-    # SIDEBAR
+    # Sidebar
     with st.sidebar:
         st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
         if st.button("CLEAR ACTIVE CACHE"):
             st.session_state.history = []
             st.rerun()
-        
         st.markdown("---")
         st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
         st.write("**DEVELOPER:** Helly")
         st.write("**ENGINE:** NPCL V2.0")
-        
         st.markdown("---")
         st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
         st.markdown('<p style="color:#b452ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
-    # MAIN INTERFACE
+    # Main Header
     st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
     st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
     if lottie_main:
         col_rob, _ = st.columns([1, 4])
         with col_rob:
-            st_lottie(lottie_main, height=150, key="main_robot")
+            st_lottie(lottie_main, height=150, key="main_robot_icon")
 
     if 'history' not in st.session_state:
         st.session_state.history = []
