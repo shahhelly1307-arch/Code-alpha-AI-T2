@@ -1,5 +1,5 @@
 import streamlit as st
-import pd as pd
+import pandas as pd  # Fixed the typo here
 import json
 import nltk
 import requests
@@ -72,7 +72,6 @@ st.markdown("""
         color: #ffffff;
     }
     
-    /* HEADER: Cyan-Purple Text Gradient */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
@@ -97,13 +96,11 @@ st.markdown("""
         opacity: 0.6;
     }
 
-    /* SIDEBAR styling */
     [data-testid="stSidebar"] {
         background-color: rgba(0, 0, 0, 0.8) !important;
         border-right: 1px solid rgba(0, 229, 255, 0.3);
     }
 
-    /* BUTTONS */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
@@ -120,7 +117,6 @@ st.markdown("""
         color: #fff !important;
     }
     
-    /* INPUT BOX */
     .stTextInput input {
         background-color: rgba(15, 15, 15, 0.9) !important;
         border: 1px solid #00e5ff !important;
@@ -128,7 +124,6 @@ st.markdown("""
         border-radius: 4px;
     }
 
-    /* CHAT CARDS */
     .chat-card {
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(0, 229, 255, 0.2);
