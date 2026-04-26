@@ -1,5 +1,5 @@
 import streamlit as st
-import pd
+import pandas as pd
 import json
 import nltk
 import requests
@@ -38,11 +38,12 @@ lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1
 @st.cache_data
 def load_data():
     try:
+        # Ensure faqs.json exists in your directory
         with open('faqs.json', 'r') as f:
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active."]})
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json file."] spell})
 
 df = load_data()
 
@@ -61,8 +62,8 @@ st.markdown("""
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            radial-gradient(circle at -15% 50%, rgba(0, 229, 255, 0.45) 0%, transparent 45%),
-            radial-gradient(circle at 115% 50%, rgba(180, 82, 255, 0.45) 0%, transparent 45%) !important;
+            radial-gradient(circle at -15% 50%, rgba(0, 229, 255, 0.45) 0%, transparent 50%),
+            radial-gradient(circle at 115% 50%, rgba(180, 82, 255, 0.45) 0%, transparent 50%) !important;
         background-attachment: fixed !important;
         color: #ffffff;
     }
