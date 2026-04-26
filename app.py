@@ -66,20 +66,19 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* FIXED BACKGROUND: NO MORE FULL BLACK */
+    /* BACKGROUND: MIXED TOP (LIGHT BLUE) TO BOTTOM (PURPLE) GRADIENT */
     .stApp {
-        background: #000000 !important;
+        background-color: #000000 !important;
         background-image: 
-            linear-gradient(
-                180deg, 
-                rgba(0, 229, 255, 0.6) 0%, 
-                rgba(180, 82, 255, 0.6) 100%
-            ) !important;
+            linear-gradient(180deg, #00e5ff 0%, #b452ff 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
+        /* We use a blend mode to keep it looking deep and professional like the image */
+        background-blend-mode: overlay; 
         color: #ffffff;
     }
     
+    /* HEADER Styling */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
@@ -89,8 +88,10 @@ st.markdown("""
         -webkit-text-fill-color: transparent;
         text-align: center;
         text-transform: uppercase;
+        white-space: nowrap; 
         letter-spacing: -3px;
         margin-top: 10px;
+        margin-bottom: 0px;
         filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
     }
 
@@ -102,18 +103,35 @@ st.markdown("""
         box-shadow: 0 0 15px #00e5ff;
     }
 
+    /* SIDEBAR styling */
     [data-testid="stSidebar"] {
         background-color: rgba(0, 0, 0, 0.9) !important;
         border-right: 2px solid #00e5ff;
     }
 
+    .sidebar-label {
+        color: #00e5ff;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        font-weight: bold;
+    }
+
+    /* Buttons and Inputs */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
+        font-size: 0.85rem !important;
+        transition: 0.3s;
     }
 
+    div.stButton > button:hover {
+        background: rgba(0, 229, 255, 0.2) !important;
+        box-shadow: 0 0 20px #00e5ff;
+        color: #fff !important;
+    }
+    
     .stTextInput input {
         background-color: rgba(20, 20, 20, 0.9) !important;
         border: 2px solid #00e5ff !important;
@@ -150,29 +168,50 @@ def get_response(user_input):
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.markdown("### SETTINGS")
+    st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
     if st.button("CLEAR ACTIVE CACHE"):
         st.session_state.history = []
         st.rerun()
+    
+    st.markdown("---")
+    st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
     st.write("**DEVELOPER:** Helly")
+    st.write("**ENGINE:** NPCL V2.0")
+    
+    st.markdown("---")
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
-    st_lottie(lottie_main, height=150, key="main_robot")
+    col_rob, _ = st.columns([1, 4])
+    with col_rob:
+        st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
+st.markdown("### 📡 ACTIVE FREQUENCIES")
+questions_list = df['question'].tolist()
+cols = st.columns(3)
+clicked_q = None
+
+for i, q in enumerate(questions_list):
+    if cols[i % 3].button(q, key=f"q_{i}"):
+        clicked_q = q
+
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:")
+    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
-if submit and user_query:
-    ans = get_response(user_query)
-    st.session_state.history.append({"q": user_query, "a": ans})
+final_query = clicked_q if clicked_q else (user_query if submit else None)
+
+if final_query:
+    ans = get_response(final_query)
+    st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
 for item in reversed(st.session_state.history):
@@ -182,3 +221,4 @@ for item in reversed(st.session_state.history):
         <b style="color:#b452ff">NOVO:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
+    
