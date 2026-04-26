@@ -38,12 +38,11 @@ lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1
 @st.cache_data
 def load_data():
     try:
-        # Ensure faqs.json exists in your directory
         with open('faqs.json', 'r') as f:
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json file."] spell})
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Please check faqs.json file."]})
 
 df = load_data()
 
