@@ -32,96 +32,122 @@ def preprocess_text(text):
     tokens = nltk.word_tokenize(text.lower())
     return " ".join([lemmatizer.lemmatize(token) for token in tokens if token.isalnum()])
 
-# --- 2. DATA & ASSETS ---
-@st.cache_data
-def load_data():
-    try:
-        with open('faqs.json', 'r') as f:
-            data = json.load(f)
-        return pd.DataFrame(data)
-    except Exception:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active. Check faqs.json."]})
-
+# --- 2. ASSET LOADING ---
 def load_lottieurl(url: str):
     try:
         r = requests.get(url, timeout=10)
         return r.json() if r.status_code == 200 else None
     except: return None
 
-df = load_data()
 lottie_main = load_lottieurl("https://lottie.host/8172906e-8360-449e-9988-0320a1630985/B1pU53Y34i.json")
 
-# --- 3. PAGE CONFIG & STYLING ---
+@st.cache_data
+def load_data():
+    try:
+        with open('faqs.json', 'r') as f:
+            data = json.load(f)
+        return pd.DataFrame(data)
+    except:
+        return pd.DataFrame({"question": ["System Status"], "answer": ["Database active. Check faqs.json."]})
+
+df = load_data()
+
+# --- 3. UI CONFIG & ORIGINAL STYLING ---
 st.set_page_config(page_title="Novo Chatterix", layout="wide")
 
-# Global Font and Background Styling
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
         font-family: 'Silkscreen', cursive !important;
     }
 
+    /* THE BACKGROUND YOU WANTED: Symmetrical Sides */
     .stApp {
         background-color: #000000 !important;
         background-image: 
             linear-gradient(90deg, 
-                rgba(0, 229, 255, 0.3) 0%, 
-                rgba(180, 82, 255, 0.3) 50%, 
-                rgba(0, 229, 255, 0.3) 100%) !important;
+                rgba(0, 229, 255, 0.4) 0%, 
+                rgba(180, 82, 255, 0.4) 50%, 
+                rgba(0, 229, 255, 0.4) 100%) !important;
         background-attachment: fixed !important;
         background-size: cover;
+        color: #ffffff;
     }
-
-    .intro-text {
-        font-size: 5rem;
+    
+    /* Splash Screen Style */
+    .splash-text {
+        font-size: 8rem;
         text-align: center;
-        margin-top: 20%;
+        margin-top: 15%;
         background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        animation: pulse 1.5s infinite;
+        filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.8));
     }
 
-    @keyframes pulse {
-        0% { opacity: 0.5; }
-        50% { opacity: 1; }
-        100% { opacity: 0.5; }
-    }
-
+    /* YOUR ORIGINAL LARGE HEADER */
     .voxa-header {
-        font-size: clamp(2rem, 5vw, 6rem);
-        font-weight: 700;
+        font-size: clamp(2.5rem, 6vw, 8rem) !important; 
+        font-weight: 700 !important;
         background: linear-gradient(to right, #00e5ff, #b452ff, #00e5ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
-        letter-spacing: -2px;
+        text-transform: uppercase;
+        letter-spacing: -3px;
+        margin-top: 10px;
+        filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.4));
+    }
+
+    .orbital-line {
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+        width: 80%;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 0 15px #00e5ff;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        border-right: 2px solid #00e5ff;
     }
 
     .chat-card {
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.5);
         border: 1px solid #00e5ff;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 5px;
+        border-left: 5px solid #b452ff;
+        padding: 20px;
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+    }
+
+    div.stButton > button {
+        background: rgba(0, 0, 0, 0.5) !important;
+        color: #00e5ff !important;
+        border: 2px solid #00e5ff !important;
+        border-radius: 0px !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. TIMED INTRO LOGIC ---
-if 'initialized' not in st.session_state:
-    placeholder = st.empty()
-    with placeholder.container():
-        st.markdown('<p class="intro-text">HELLY</p>', unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center; color:#00e5ff;'>INITIALIZING NEURAL LINK...</p>", unsafe_allow_html=True)
+# --- 4. TIMED SPLASH SCREEN ---
+if 'intro_done' not in st.session_state:
+    splash = st.empty()
+    with splash.container():
+        st.markdown('<p class="splash-text">HELLY</p>', unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center; color:#00e5ff;'>LOAD_SYSTEM...</h3>", unsafe_allow_html=True)
         time.sleep(2)
-    placeholder.empty()
-    st.session_state.initialized = True
+    splash.empty()
+    st.session_state.intro_done = True
 
-# --- 5. MAIN CHATBOT INTERFACE ---
+# --- 5. LOGIC ENGINE ---
 def get_response(user_input):
+    dev_query = user_input.lower()
+    if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
+        return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
+    
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -129,22 +155,30 @@ def get_response(user_input):
     tfidf_matrix = vectorizer.fit_transform(corpus)
     similarity_scores = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
     idx = similarity_scores.argmax()
-    return df.iloc[idx]['answer'] if similarity_scores[0][idx] > 0.2 else "Signal Lost."
+    return df.iloc[idx]['answer'] if similarity_scores[0][idx] > 0.2 else "Neural Signal Mismatch."
 
-# Sidebar
+# --- 6. SIDEBAR ---
 with st.sidebar:
-    st.write("### SYSTEM BY HELLY")
-    if st.button("RESET CACHE"):
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
+    if st.button("CLEAR ACTIVE CACHE"):
         st.session_state.history = []
         st.rerun()
+    st.markdown("---")
+    st.write("**DEVELOPER:** Helly")
+    st.write("**ENGINE:** NPCL V2.0")
 
-# Layout
+# --- 7. MAIN INTERFACE (YOUR PREVIOUS DESIGN) ---
 st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
+st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
+
+if lottie_main:
+    col_rob, _ = st.columns([1, 4])
+    with col_rob:
+        st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Action Buttons
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
@@ -154,7 +188,6 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Input
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -166,12 +199,10 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# Display Chat
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br>
+        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
         <b style="color:#b452ff">NOVO:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
-    
