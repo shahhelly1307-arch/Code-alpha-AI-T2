@@ -42,76 +42,86 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        # Fallback data if file is missing
         return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active."]})
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (VOXA AESTHETIC REPLICA) ---
+# --- 4. UI CONFIGURATION (PRECISE VOXA CLONE) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* Importing a heavy Pixel font */
-    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+    /* Professional Pixel font with high weight */
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
-        font-family: 'Silkscreen', sans-serif !important;
+        font-family: 'VT323', monospace !important;
     }
 
-    /* Background: Deep Obsidian with centered Cyan Aura as requested */
+    /* Background: Deep Black with the precise Cyan/Blue center glow from the image */
     .stApp {
-        background: radial-gradient(circle at center, #001a1a 0%, #000000 100%) !important;
+        background: radial-gradient(circle at 50% 50%, #0a2d3d 0%, #000000 80%) !important;
         color: #ffffff;
     }
     
-    /* THE VOXA STYLE HEADER */
+    /* THE VOXA STYLE HEADER: ULTRA BIG, THICK, AND GLOWING */
     .voxa-header {
-        font-family: 'Silkscreen', sans-serif !important;
-        font-size: clamp(3rem, 12vw, 10rem); /* Extremely large */
-        font-weight: 700;
-        color: #99ccff; /* The light icy blue/cyan from the image */
+        font-family: 'VT323', monospace !important;
+        font-size: 140px !important; /* Massive Scale */
+        font-weight: 900 !important;
+        color: #add8e6 !important; /* The Icy Blue from the photo */
         text-align: center;
         text-transform: uppercase;
-        margin-top: 50px;
-        margin-bottom: -20px;
-        line-height: 1;
-        letter-spacing: -2px;
-        /* This text-shadow creates the 'thick' blocky look and the neon glow */
+        line-height: 0.85;
+        letter-spacing: -5px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        /* Layered shadows to simulate the 'thick block' and neon glow */
         text-shadow: 
-            5px 5px 0px #1a3a3a, 
-            0 0 50px rgba(153, 204, 255, 0.4);
+            3px 3px 0px #1a3a4a,
+            6px 6px 0px #1a3a4a,
+            0 0 30px rgba(173, 216, 230, 0.6),
+            0 0 60px rgba(173, 216, 230, 0.3);
     }
 
+    /* Styled horizontal line to match the aura */
     .orbital-line {
-        height: 4px;
-        background: linear-gradient(90deg, transparent, #99ccff, transparent);
-        width: 60%;
-        margin: 40px auto;
-        box-shadow: 0 0 20px #99ccff;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #add8e6, transparent);
+        width: 70%;
+        margin: 0 auto 50px auto;
+        opacity: 0.8;
+        box-shadow: 0 0 15px #add8e6;
     }
 
-    /* Input and Button Styling */
+    /* Buttons and Inputs adjusted for the Icy Blue theme */
     div.stButton > button {
-        background: rgba(153, 204, 255, 0.1) !important;
-        color: #99ccff !important;
-        border: 2px solid #99ccff !important;
-        font-weight: bold;
+        background: rgba(173, 216, 230, 0.05) !important;
+        color: #add8e6 !important;
+        border: 2px solid #add8e6 !important;
+        border-radius: 0px !important;
+        font-size: 1.3rem !important;
     }
     
+    div.stButton > button:hover {
+        background: #add8e6 !important;
+        color: #000 !important;
+        box-shadow: 0 0 20px #add8e6;
+    }
+
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.5) !important;
-        border: 2px solid #99ccff !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        border: 1px solid #add8e6 !important;
         color: #ffffff !important;
-        font-size: 1.2rem;
+        font-size: 1.5rem !important;
+        height: 60px;
     }
 
     .chat-card {
-        background: rgba(153, 204, 255, 0.05);
-        border: 1px solid rgba(153, 204, 255, 0.3);
-        padding: 20px;
-        margin-bottom: 15px;
-        border-radius: 2px;
+        background: rgba(10, 45, 61, 0.4);
+        border: 1px solid #add8e6;
+        padding: 25px;
+        margin-bottom: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -136,18 +146,18 @@ with st.sidebar:
         st.session_state.history = []
         st.rerun()
     st.write("**Developer:** Helly Shah")
-    st.markdown('<p style="color:#99ccff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#add8e6;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# Title styled to match the image precisely
+# Title: Big, Thick, and exactly the VOXA color
 st.markdown('<p class="voxa-header">NOVA<br>CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Robot Positioning (Top Left)
+# Robot Positioning
 if lottie_main:
     col_rob, _ = st.columns([1, 4])
     with col_rob:
-        st_lottie(lottie_main, height=180, key="main_robot")
+        st_lottie(lottie_main, height=200, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
@@ -164,7 +174,7 @@ for i, q in enumerate(questions_list):
 
 # Input
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="Enter signal...")
+    user_query = st.text_input("Transmit Command:", placeholder="ENTER SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
@@ -178,7 +188,7 @@ if final_query:
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#99ccff">SIGNAL:</b> {item["q"]}<br><br>
+        <b style="color:#add8e6">SIGNAL:</b> {item["q"]}<br><br>
         <b>NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
