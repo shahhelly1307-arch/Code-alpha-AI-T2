@@ -11,7 +11,6 @@ from nltk.stem import WordNetLemmatizer
 # --- 1. NLP SETUP ---
 @st.cache_resource
 def setup_nlp():
-    # Fixed non-breaking space errors and ensured clean indentation
     try:
         nltk.data.find('tokenizers/punkt')
     except LookupError:
@@ -52,15 +51,14 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except Exception:
-        # Fallback if file is missing
         return pd.DataFrame({
-            "question": ["System Status", "What is Nova Chatterix?"], 
-            "answer": ["Database signal active. Please check faqs.json file.", "A high-end NLP interface built for demo purposes."]
+            "question": ["System Status", "Identity Check"], 
+            "answer": ["Database signal active. Please check faqs.json.", "I am NOVA, your neural interface."]
         })
 
 df = load_data()
 
-# --- 4. THE UI CONFIG ---
+# --- 4. THE NOVA CHATTERIX UI ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
@@ -158,15 +156,16 @@ def get_response(user_input):
     dev_query = user_input.lower()
     if any(x in dev_query for x in ["developed", "creator", "who made", "built by", "developer"]):
         return "This interface was developed by Helly as a professional demonstration of NLP and advanced UI design."
-        
+    
+    if "nova" in dev_query and "who are you" in dev_query:
+        return "I am NOVA, a high-frequency neural interface designed for rapid data retrieval."
+
     processed_input = preprocess_text(user_input)
-    # Re-build corpus for vectorization
     corpus = df['question'].apply(preprocess_text).tolist()
     
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(corpus)
     
-    # Transform user input based on the same vectorizer
     user_vec = vectorizer.transform([processed_input])
     similarity_scores = cosine_similarity(user_vec, tfidf_matrix)
     
@@ -185,14 +184,14 @@ with st.sidebar:
     st.markdown("---")
     st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
     st.write("**DEVELOPER:** Helly")
-    st.write("**ENGINE:** NPCL V2.0")
+    st.write("**ENGINE:** NOVA-V2")
     
     st.markdown("---")
     st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
     st.markdown('<p style="color:#b452ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
+st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
@@ -208,12 +207,10 @@ questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
 
-# Quick-action buttons
 for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Chat Input Form
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -225,11 +222,10 @@ if final_query:
     st.session_state.history.insert(0, {"q": final_query, "a": ans})
     st.rerun()
 
-# Display Chat History
 for item in st.session_state.history:
     st.markdown(f'''
     <div class="chat-card">
         <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
-        <b style="color:#b452ff">NOVO:</b> {item["a"]}
+        <b style="color:#b452ff">NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
