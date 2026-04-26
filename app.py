@@ -42,92 +42,90 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active."]})
+        # Fallback data - HELLY SHAH as the developer
+        return pd.DataFrame({
+            "question": ["Who developed this interface?", "System Status"], 
+            "answer": ["This interface was developed by Helly Shah.", "Database signal active."]
+        })
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (PRECISE VOXA CLONE) ---
+# --- 4. UI CONFIGURATION (SINGLE LINE VOXA STYLE) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* Professional Pixel font with high weight */
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
     
     html, body, [class*="css"], .stText, .stMarkdown, .stButton, input, label {
         font-family: 'VT323', monospace !important;
     }
 
-    /* Background: Deep Black with the precise Cyan/Blue center glow from the image */
     .stApp {
-        background: radial-gradient(circle at 50% 50%, #0a2d3d 0%, #000000 80%) !important;
+        background: radial-gradient(circle at 50% 50%, #0a2d3d 0%, #000000 85%) !important;
         color: #ffffff;
     }
     
-    /* THE VOXA STYLE HEADER: ULTRA BIG, THICK, AND GLOWING */
+    /* HEADER: Single Line, Extra Large, VOXA Cyan-Blue */
     .voxa-header {
         font-family: 'VT323', monospace !important;
-        font-size: 140px !important; /* Massive Scale */
+        font-size: clamp(4rem, 10vw, 9rem) !important; 
         font-weight: 900 !important;
-        color: #add8e6 !important; /* The Icy Blue from the photo */
+        color: #00e5ff !important; /* Brighter VOXA Cyan */
         text-align: center;
         text-transform: uppercase;
-        line-height: 0.85;
-        letter-spacing: -5px;
-        margin-top: 40px;
-        margin-bottom: 20px;
-        /* Layered shadows to simulate the 'thick block' and neon glow */
+        white-space: nowrap; /* Forces text to stay on one line */
+        letter-spacing: -2px;
+        margin-top: 20px;
+        margin-bottom: 10px;
         text-shadow: 
-            3px 3px 0px #1a3a4a,
-            6px 6px 0px #1a3a4a,
-            0 0 30px rgba(173, 216, 230, 0.6),
-            0 0 60px rgba(173, 216, 230, 0.3);
+            4px 4px 0px #004d4d,
+            0 0 40px rgba(0, 229, 255, 0.5);
     }
 
-    /* Styled horizontal line to match the aura */
     .orbital-line {
         height: 3px;
-        background: linear-gradient(90deg, transparent, #add8e6, transparent);
-        width: 70%;
-        margin: 0 auto 50px auto;
-        opacity: 0.8;
-        box-shadow: 0 0 15px #add8e6;
+        background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+        width: 85%;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 0 15px #00e5ff;
     }
 
-    /* Buttons and Inputs adjusted for the Icy Blue theme */
     div.stButton > button {
-        background: rgba(173, 216, 230, 0.05) !important;
-        color: #add8e6 !important;
-        border: 2px solid #add8e6 !important;
+        background: rgba(0, 229, 255, 0.05) !important;
+        color: #00e5ff !important;
+        border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
-        font-size: 1.3rem !important;
     }
     
     div.stButton > button:hover {
-        background: #add8e6 !important;
+        background: #00e5ff !important;
         color: #000 !important;
-        box-shadow: 0 0 20px #add8e6;
+        box-shadow: 0 0 20px #00e5ff;
     }
 
     .stTextInput input {
         background-color: rgba(0, 0, 0, 0.8) !important;
-        border: 1px solid #add8e6 !important;
+        border: 2px solid #00e5ff !important;
         color: #ffffff !important;
-        font-size: 1.5rem !important;
-        height: 60px;
+        font-size: 1.4rem !important;
     }
 
     .chat-card {
         background: rgba(10, 45, 61, 0.4);
-        border: 1px solid #add8e6;
-        padding: 25px;
-        margin-bottom: 20px;
+        border: 1px solid #00e5ff;
+        padding: 20px;
+        margin-bottom: 15px;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
+    # Direct override for developer question
+    if "developed" in user_input.lower() or "creator" in user_input.lower():
+        return "This interface was developed by Helly Shah."
+        
     processed_input = preprocess_text(user_input)
     corpus = df['question'].apply(preprocess_text).tolist()
     corpus.append(processed_input)
@@ -145,24 +143,23 @@ with st.sidebar:
     if st.button("CLEAR HISTORY"):
         st.session_state.history = []
         st.rerun()
+    # Explicitly set to Helly Shah
     st.write("**Developer:** Helly Shah")
-    st.markdown('<p style="color:#add8e6;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# Title: Big, Thick, and exactly the VOXA color
-st.markdown('<p class="voxa-header">NOVA<br>CHATTERIX</p>', unsafe_allow_html=True)
+# Title is now restricted to a single line
+st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_header=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
-# Robot Positioning
 if lottie_main:
     col_rob, _ = st.columns([1, 4])
     with col_rob:
-        st_lottie(lottie_main, height=200, key="main_robot")
+        st_lottie(lottie_main, height=180, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Questions Grid
 st.markdown("### 📡 ACTIVE FREQUENCIES")
 questions_list = df['question'].tolist()
 cols = st.columns(3)
@@ -172,7 +169,6 @@ for i, q in enumerate(questions_list):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Input
 with st.form(key='chat_form', clear_on_submit=True):
     user_query = st.text_input("Transmit Command:", placeholder="ENTER SIGNAL...")
     submit = st.form_submit_button("TRANSMIT")
@@ -184,11 +180,10 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# History
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#add8e6">SIGNAL:</b> {item["q"]}<br><br>
+        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
         <b>NOVA:</b> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
