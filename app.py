@@ -57,12 +57,15 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: REFINED NEON GRADIENT TO MATCH IMAGE */
+    /* BACKGROUND: MIXED NEON GRADIENT WAVE EFFECT */
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            radial-gradient(circle at -15% 50%, rgba(0, 229, 255, 0.45) 0%, transparent 50%),
-            radial-gradient(circle at 115% 50%, rgba(180, 82, 255, 0.45) 0%, transparent 50%) !important;
+            radial-gradient(at 0% 100%, rgba(0, 229, 255, 0.35) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, rgba(180, 82, 255, 0.35) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(0, 229, 255, 0.2) 0px, transparent 50%),
+            radial-gradient(at 0% 0%, rgba(180, 82, 255, 0.2) 0px, transparent 50%),
+            linear-gradient(125deg, rgba(0,0,0,1) 0%, rgba(15,15,25,1) 50%, rgba(0,0,0,1) 100%) !important;
         background-attachment: fixed !important;
         color: #ffffff;
     }
