@@ -66,24 +66,25 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: Symmetrical Horizontal Gradient */
-    /* Blue (Left) -> Purple (Center) -> Blue (Right) */
+    /* FIXED BACKGROUND: NO MORE FULL BLACK */
     .stApp {
-        background-color: #000000 !important;
+        background: #000000 !important;
         background-image: 
-            linear-gradient(90deg, 
-                rgba(0, 229, 255, 0.4) 0%, 
-                rgba(180, 82, 255, 0.4) 50%, 
-                rgba(0, 229, 255, 0.4) 100%) !important;
+            linear-gradient(
+                180deg, 
+                rgba(0, 229, 255, 0.6) 0%, 
+                rgba(180, 82, 255, 0.6) 100%
+            ) !important;
         background-attachment: fixed !important;
         background-size: cover;
         color: #ffffff;
     }
     
     .voxa-header {
+        font-family: 'Silkscreen', cursive !important;
         font-size: clamp(2.5rem, 6vw, 8rem) !important; 
         font-weight: 700 !important;
-        background: linear-gradient(to right, #00e5ff, #b452ff, #00e5ff);
+        background: linear-gradient(to right, #00e5ff, #b452ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
@@ -102,41 +103,27 @@ st.markdown("""
     }
 
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.8) !important;
+        background-color: rgba(0, 0, 0, 0.9) !important;
         border-right: 2px solid #00e5ff;
     }
 
-    .sidebar-label {
-        color: #00e5ff;
-        font-size: 0.9rem;
-        letter-spacing: 2px;
-        font-weight: bold;
-    }
-
     div.stButton > button {
-        background: rgba(0, 0, 0, 0.5) !important;
+        background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
         border: 2px solid #00e5ff !important;
         border-radius: 0px !important;
-        transition: 0.3s;
     }
 
-    div.stButton > button:hover {
-        background: rgba(0, 229, 255, 0.2) !important;
-        box-shadow: 0 0 20px #00e5ff;
-        color: #fff !important;
-    }
-    
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.7) !important;
+        background-color: rgba(20, 20, 20, 0.9) !important;
         border: 2px solid #00e5ff !important;
         color: #ffffff !important;
     }
 
     .chat-card {
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 229, 255, 0.03);
         border: 1px solid #00e5ff;
-        border-left: 5px solid #b452ff;
+        border-left: 5px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
         backdrop-filter: blur(10px);
@@ -163,50 +150,29 @@ def get_response(user_input):
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
+    st.markdown("### SETTINGS")
     if st.button("CLEAR ACTIVE CACHE"):
         st.session_state.history = []
         st.rerun()
-    
-    st.markdown("---")
-    st.markdown('<p class="sidebar-label">SYSTEM CREDENTIALS</p>', unsafe_allow_html=True)
     st.write("**DEVELOPER:** Helly")
-    st.write("**ENGINE:** NPCL V2.0")
-    
-    st.markdown("---")
-    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#00e5ff; font-weight:bold;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVO CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
-    col_rob, _ = st.columns([1, 4])
-    with col_rob:
-        st_lottie(lottie_main, height=150, key="main_robot")
+    st_lottie(lottie_main, height=150, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-st.markdown("### 📡 ACTIVE FREQUENCIES")
-questions_list = df['question'].tolist()
-cols = st.columns(3)
-clicked_q = None
-
-for i, q in enumerate(questions_list):
-    if cols[i % 3].button(q, key=f"q_{i}"):
-        clicked_q = q
-
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Command:", placeholder="AWAITING SIGNAL...")
+    user_query = st.text_input("Transmit Command:")
     submit = st.form_submit_button("TRANSMIT")
 
-final_query = clicked_q if clicked_q else (user_query if submit else None)
-
-if final_query:
-    ans = get_response(final_query)
-    st.session_state.history.append({"q": final_query, "a": ans})
+if submit and user_query:
+    ans = get_response(user_query)
+    st.session_state.history.append({"q": user_query, "a": ans})
     st.rerun()
 
 for item in reversed(st.session_state.history):
