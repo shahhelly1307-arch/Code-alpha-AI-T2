@@ -40,60 +40,55 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({
-            "question": ["Who developed this?", "What is Nova?"],
-            "answer": ["Developed by Helly Shah.", "Nova is a neural transit AI."]
-        })
+        # Fallback if file is missing
+        return pd.DataFrame({"question": ["Developer"], "answer": ["Developed by Helly Shah."]})
 
 df = load_data()
 
-# --- 4. UI CONFIGURATION (VOXA HARD-PIXEL STYLE) ---
+# --- 4. UI CONFIGURATION (VOXA PIXEL MATCH) ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
     <style>
-    /* Import Silkscreen for the pixelated base */
+    /* Import Silkscreen: Every letter is a blocky pixel */
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@700&display=swap');
 
-    /* Background: Image 2 Style - Cyan Center Aura */
+    /* Background: Deep Center-Cyan Glow */
     .stApp {
         background: radial-gradient(circle at center, #004d4d 0%, #001a1a 40%, #050505 100%) !important;
         color: #ffffff;
     }
     
-    /* THE VOXA HEADER FIX: Manual Pixel Weighting for H, T, E, I */
+    /* THE FIX: Force thickness on H, T, E, I */
     .voxa-header {
         font-family: 'Silkscreen', cursive !important;
-        font-size: clamp(2rem, 8vw, 5rem) !important;
+        font-size: clamp(2.5rem, 8vw, 5rem) !important;
+        font-weight: 700 !important;
         color: #00FFA3 !important;      /* EXACT VOXA CYAN */
         text-align: center;
-        letter-spacing: 12px;
         text-transform: uppercase;
-        margin-top: 50px;
-        line-height: 1.2;
-        white-space: nowrap;
+        letter-spacing: 12px;
+        margin: 40px 0 10px 0;
+        white-space: nowrap;            /* Single line focus */
         
-        /* Stacking shadows to force THICKNESS on all letters */
+        /* Forces blocky thickness on thin letters */
+        -webkit-text-stroke: 2px #00FFA3; 
         text-shadow: 
-            2px 2px 0px #00FFA3,
-            -2px -2px 0px #00FFA3,
-            2px -2px 0px #00FFA3,
-            -2px 2px 0px #00FFA3,
-            0 0 25px rgba(0, 255, 163, 0.8);
-            
-        /* Physical stroke to thicken the 'I' and 'T' bars */
-        -webkit-text-stroke: 1.5px #00FFA3; 
+            3px 3px 0px rgba(0, 0, 0, 0.7),
+            0 0 20px rgba(0, 255, 163, 0.8),
+            0 0 40px rgba(0, 255, 163, 0.4);
     }
 
-    .glow-divider {
-        height: 3px;
-        background: #00FFA3;
-        width: 70%;
-        margin: 0 auto 50px auto;
-        box-shadow: 0 0 20px #00FFA3;
+    /* Glow Divider */
+    .glow-line {
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #00FFA3, #00FFA3, transparent);
+        width: 80%;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 0 25px #00FFA3;
     }
 
-    /* Sidebar Content */
+    /* Sidebar Styling */
     [data-testid="stSidebar"] {
         background-color: #050505 !important;
         border-right: 2px solid #00FFA3;
@@ -107,7 +102,7 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
         text-transform: uppercase;
         border-radius: 0px !important;
-        padding: 10px 20px !important;
+        transition: 0.3s;
     }
     div.stButton > button:hover {
         background: #00FFA3 !important;
@@ -115,18 +110,19 @@ st.markdown("""
         box-shadow: 0 0 20px #00FFA3;
     }
 
-    /* Input Field Styling */
+    /* Input Field */
     .stTextInput input {
         background-color: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid #00FFA3 !important;
         color: #ffffff !important;
+        font-family: 'Silkscreen', cursive !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 5. LOGIC ENGINE ---
 def get_response(user_input):
-    # Forced Credit Check: bf866d97-8cbc-416a-b901-98651f5495f2
+    # Fixed Developer Credit
     if "developer" in user_input.lower() or "who developed" in user_input.lower():
         return "This project was developed by Helly Shah as a technical demonstration of NLP and professional UI integration."
     
@@ -139,33 +135,33 @@ def get_response(user_input):
     idx = similarity_scores.argmax()
     if similarity_scores[0][idx] > 0.2:
         return df.iloc[idx]['answer']
-    return "Neural Buffer Empty. Signal not recognized."
+    return "Signal Error. Data Mismatch."
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
     st.markdown("<h2 style='color:#00FFA3; font-family:Silkscreen;'>SYSTEM</h2>", unsafe_allow_html=True)
-    if st.button("PURGE CACHE"):
+    if st.button("PURGE HISTORY"):
         st.session_state.history = []
         st.rerun()
     st.markdown("---")
-    st.write("**Operator:** Helly Shah")
-    st.write("**Platform:** Nova Chatterix")
+    st.write("**Architect:** Helly Shah")
+    st.write("**Core:** Nova Chatterix")
     st.markdown('<p style="color:#00FFA3;">● STATUS: ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
-# THE FIXED VOXA HEADER (Bold, Thick, Correct Font)
+# THE UNIFORM THICK HEADER
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
-st.markdown('<div class="glow-divider"></div>', unsafe_allow_html=True)
+st.markdown('<div class="glow-line"></div>', unsafe_allow_html=True)
 
-# Central Robot (Image 2 aesthetic)
+# Hero Bot with center aura
 if lottie_robot:
-    st_lottie(lottie_robot, height=350, key="main_robot")
+    st_lottie(lottie_robot, height=350, key="main_bot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# Action Signals
-st.markdown("### 📡 ACTIVE FREQUENCIES")
+# Signal Buttons
+st.markdown("### 📡 ACTIVE SIGNALS")
 questions = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
@@ -173,9 +169,8 @@ for i, q in enumerate(questions[:6]):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
-# Input Form
 with st.form(key='chat_form', clear_on_submit=True):
-    user_query = st.text_input("Transmit Signal:", placeholder="Input command...")
+    user_query = st.text_input("Transmit Command:", placeholder="Enter your signal...")
     submit = st.form_submit_button("SEND")
 
 final_query = clicked_q if clicked_q else (user_query if submit else None)
@@ -185,7 +180,7 @@ if final_query:
     st.session_state.history.append({"q": final_query, "a": ans})
     st.rerun()
 
-# History Display
+# History Log
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div style="background:rgba(0, 255, 163, 0.05); border-left:5px solid #00FFA3; padding:15px; margin-bottom:10px;">
