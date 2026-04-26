@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd
+import pd as pd
 import json
 import nltk
 import requests
@@ -42,11 +42,14 @@ def load_data():
             data = json.load(f)
         return pd.DataFrame(data)
     except:
-        return pd.DataFrame({"question": ["System Status"], "answer": ["Database signal active."]})
+        return pd.DataFrame({
+            "question": ["System Status", "Who made this?", "Capabilities"], 
+            "answer": ["Database signal active.", "Developed by Helly.", "Neural NLP processing active."]
+        })
 
 df = load_data()
 
-# --- 4. THE VOXA REPLICA UI ---
+# --- 4. THE VOXA-STYLE UI ---
 st.set_page_config(page_title="Nova Chatterix", layout="wide")
 
 st.markdown("""
@@ -57,12 +60,14 @@ st.markdown("""
         font-family: 'Silkscreen', cursive !important;
     }
 
-    /* BACKGROUND: SOLID BLACK CENTER WITH NEON GRADIENT SIDES */
+    /* THE VOXA BACKGROUND: TRUE BLACK WITH SIDE GLOWS */
     .stApp {
         background-color: #000000 !important;
         background-image: 
-            radial-gradient(circle at 0% 50%, rgba(0, 229, 255, 0.15) 0%, transparent 40%),
-            radial-gradient(circle at 100% 50%, rgba(180, 82, 255, 0.15) 0%, transparent 40%) !important;
+            /* Left side Cyan glow */
+            radial-gradient(circle at -5% 50%, rgba(0, 229, 255, 0.25) 0%, transparent 45%),
+            /* Right side Purple glow */
+            radial-gradient(circle at 105% 50%, rgba(180, 82, 255, 0.2) 0%, transparent 45%) !important;
         background-attachment: fixed !important;
         color: #ffffff;
     }
@@ -85,52 +90,49 @@ st.markdown("""
     }
 
     .orbital-line {
-        height: 3px;
+        height: 2px;
         background: linear-gradient(90deg, transparent, #00e5ff, transparent);
         width: 80%;
         margin: 0 auto 40px auto;
-        box-shadow: 0 0 15px #00e5ff;
+        opacity: 0.6;
     }
 
     /* SIDEBAR styling */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.9) !important;
-        border-right: 2px solid #00e5ff;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        border-right: 1px solid rgba(0, 229, 255, 0.3);
     }
 
-    .sidebar-label {
-        color: #00e5ff;
-        font-size: 0.9rem;
-        letter-spacing: 2px;
-        font-weight: bold;
-    }
-
-    /* NEON CYAN BOXES */
+    /* BUTTONS */
     div.stButton > button {
         background: rgba(0, 229, 255, 0.05) !important;
         color: #00e5ff !important;
-        border: 2px solid #00e5ff !important;
-        border-radius: 0px !important;
-        font-size: 0.85rem !important;
+        border: 1px solid #00e5ff !important;
+        border-radius: 4px !important;
+        font-size: 0.8rem !important;
         transition: 0.3s;
+        width: 100%;
     }
 
     div.stButton > button:hover {
         background: rgba(0, 229, 255, 0.2) !important;
-        box-shadow: 0 0 20px #00e5ff;
+        box-shadow: 0 0 15px #00e5ff;
         color: #fff !important;
     }
     
+    /* INPUT BOX */
     .stTextInput input {
-        background-color: rgba(20, 20, 20, 0.9) !important;
-        border: 2px solid #00e5ff !important;
+        background-color: rgba(15, 15, 15, 0.9) !important;
+        border: 1px solid #00e5ff !important;
         color: #ffffff !important;
+        border-radius: 4px;
     }
 
+    /* CHAT CARDS */
     .chat-card {
-        background: rgba(0, 229, 255, 0.03);
-        border: 1px solid #00e5ff;
-        border-left: 5px solid #00e5ff;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-left: 4px solid #00e5ff;
         padding: 20px;
         margin-bottom: 15px;
         backdrop-filter: blur(10px);
@@ -157,28 +159,24 @@ def get_response(user_input):
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
-    st.markdown('<p class="sidebar-label">INTERFACE SETTINGS</p>', unsafe_allow_html=True)
-    if st.button("CLEAR CACHE"):
+    st.markdown('<p style="color:#00e5ff; font-weight:bold;">SYSTEM SETTINGS</p>', unsafe_allow_html=True)
+    if st.button("RESET INTERFACE"):
         st.session_state.history = []
         st.rerun()
     
     st.markdown("---")
-    st.markdown('<p class="sidebar-label">CREDENTIALS</p>', unsafe_allow_html=True)
-    st.write("**DEVELOPER:** Helly Shah")
-    st.write("**ENGINE:** NPCL V2.0")
-    
-    st.markdown("---")
-    st.markdown('<p style="color:#00e5ff;">● SYSTEM: ONLINE</p>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#00e5ff;">● SIGNAL: ACTIVE</p>', unsafe_allow_html=True)
+    st.write("**DEV:** Helly Shah")
+    st.write("**CORE:** NPCL V2.0")
+    st.markdown('<p style="color:#00e5ff;">● ONLINE</p>', unsafe_allow_html=True)
 
 # --- 7. MAIN INTERFACE ---
 st.markdown('<p class="voxa-header">NOVA CHATTERIX</p>', unsafe_allow_html=True)
 st.markdown('<div class="orbital-line"></div>', unsafe_allow_html=True)
 
 if lottie_main:
-    col_rob, _ = st.columns([1, 4])
+    col_rob, _ = st.columns([1, 5])
     with col_rob:
-        st_lottie(lottie_main, height=150, key="main_robot")
+        st_lottie(lottie_main, height=120, key="main_robot")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
@@ -188,7 +186,7 @@ questions_list = df['question'].tolist()
 cols = st.columns(3)
 clicked_q = None
 
-for i, q in enumerate(questions_list):
+for i, q in enumerate(questions_list[:6]):
     if cols[i % 3].button(q, key=f"q_{i}"):
         clicked_q = q
 
@@ -206,7 +204,7 @@ if final_query:
 for item in reversed(st.session_state.history):
     st.markdown(f'''
     <div class="chat-card">
-        <b style="color:#00e5ff">SIGNAL:</b> {item["q"]}<br><br>
-        <b style="color:#b452ff">NOVA:</b> {item["a"]}
+        <span style="color:#00e5ff; font-weight:bold;">SIGNAL:</span> {item["q"]}<br><br>
+        <span style="color:#b452ff; font-weight:bold;">NOVA:</span> {item["a"]}
     </div>
     ''', unsafe_allow_html=True)
